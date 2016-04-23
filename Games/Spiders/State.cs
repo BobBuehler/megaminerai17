@@ -92,35 +92,37 @@ namespace Joueur.cs.Games.Spiders
             StrengtheningWeb = -1;
             WeakeningWeb = -1;
 
-            if (obj is Spiderling)
+            if (obj is BroodMother)
             {
-                Coworkers = (obj as Spiderling).Coworkers.Select(s => s.GetKey());
-                MovingOnWeb = (obj as Spiderling).MovingOnWeb.GetKey();
-                MovingToNest = (obj as Spiderling).MovingToNest.GetKey();
-                WorkRemaining = (obj as Spiderling).WorkRemaining;
-            }
-
-            if (obj is Cutter)
-            {
-                Type = XSpiderType.Cutter;
-                CuttingWeb = (obj as Cutter).CuttingWeb.GetKey();
-            }
-            else if (obj is Spitter)
-            {
-                Type = XSpiderType.Spitter;
-                SpittingToNest = (obj as Spitter).SpittingWebToNest.GetKey();
-            }
-            else if (obj is Weaver)
-            {
-                Type = XSpiderType.Weaver;
-                StrengtheningWeb = (obj as Weaver).StrengtheningWeb.GetKey();
-                WeakeningWeb = (obj as Weaver).WeakeningWeb.GetKey();
-            }
-            else if (obj is BroodMother)
-            {
+                var bm = obj as BroodMother;
                 Type = XSpiderType.BroodMother;
-                Eggs = (obj as BroodMother).Eggs;
-                Health = (obj as BroodMother).Health;
+                Eggs = bm.Eggs;
+                Health = bm.Health;
+            }
+            else
+            {
+                var ling = obj as Spiderling;
+                Coworkers = ling.Coworkers.Select(s => s.GetKey());
+                MovingOnWeb = ling.MovingOnWeb.GetKey();
+                MovingToNest = ling.MovingToNest.GetKey();
+                WorkRemaining = ling.WorkRemaining;
+                if (obj is Cutter)
+                {
+                    Type = XSpiderType.Cutter;
+                    CuttingWeb = (obj as Cutter).CuttingWeb.GetKey();
+                }
+                else if (obj is Spitter)
+                {
+                    Type = XSpiderType.Spitter;
+                    SpittingToNest = (obj as Spitter).SpittingWebToNest.GetKey();
+                }
+                else if (obj is Weaver)
+                {
+                    var weave = obj as Weaver;
+                    Type = XSpiderType.Weaver;
+                    StrengtheningWeb = weave.StrengtheningWeb.GetKey();
+                    WeakeningWeb = weave.WeakeningWeb.GetKey();
+                }
             }
         }
     }
