@@ -7,9 +7,35 @@ namespace Joueur.cs.Games.Spiders
 {
     static class Extensions
     {
+        public static XSpiderType GetXSpiderType(this Spider spider)
+        {
+            if (spider is BroodMother)
+            {
+                return XSpiderType.BroodMother;
+            }
+            if (spider is Cutter)
+            {
+                return XSpiderType.Cutter;
+            }
+            if (spider is Spitter)
+            {
+                return XSpiderType.Spitter;
+            }
+            if (spider is Weaver)
+            {
+                return XSpiderType.Weaver;
+            }
+
+            return XSpiderType.BroodMother;
+        }
+
         public static int GetKey(this BaseGameObject obj)
         {
-            return (API.GetKey(obj.Id));
+            if (obj == null)
+            {
+                return -1;
+            }
+            return API.GetKey(obj.Id);
         }
 
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
