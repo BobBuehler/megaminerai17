@@ -27,9 +27,9 @@ namespace Joueur.cs.Games.Spiders
 
         public static Func<Point, double> EDist; // memoized caller
 		
-		public static double movementTime(double distance)
+		public static int movementTime(double distance)
 		{
-			return Math.Ceiling(distance / Game.MovementSpeed);
+			return (int)Math.Ceiling(distance / Game.MovementSpeed);
 		}
 		
 		public static int newEggs(int numSpiderlings)
@@ -76,5 +76,17 @@ namespace Joueur.cs.Games.Spiders
         {
             return keyToId[key];
         }
+
+        public static XNest getNextNest(XState state, XNest node, XWeb web)
+        {
+            return state.Nests[web.NestA == node.Key ? web.NestB : web.NestA];
+        }
+
+        public static IEnumerable< Tuple<XWeb, XNest> > getNeighbors(XState state, XNest node)
+        {
+            Func<XWeb, XNest> getNN = w => API.getNextNest(state, node, w);
+            return node.Webs.Select( w => state.Webs[w]).Select(w => Tuple.Create(w, getNN(w)) );
+        }
+
     }
 }
