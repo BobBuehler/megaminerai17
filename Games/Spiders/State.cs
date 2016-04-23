@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Joueur.cs.Games.Spiders
 {
-    public enum XSpiderType
+    enum XSpiderType
     {
         BroodMother,
         Cutter,
@@ -13,25 +13,36 @@ namespace Joueur.cs.Games.Spiders
         Weaver
     }
 
-    public class XBase
+    class XBase
     {
-        public string Id;
+        public string hash;
         public override int GetHashCode()
         {
- 	         return Id.GetHashCode();
+            return hash.GetHashCode();
+        }
+
+        public XBase(BaseGameObject obj)
+        {
+            this.hash = obj.Id;
         }
     }
 
-    public class XPlayer : XBase
+    class XPlayer : XBase
     {
         public int ID;
         public XSpider BroodMother;
         public IEnumerable<XSpider> Cutters;
         public IEnumerable<XSpider> Spitters;
         public IEnumerable<XSpider> Weavers;
+
+        public XPlayer(Player obj, int id)
+            : base(obj)
+        {
+            ID = id;
+        }
     }
 
-    public class XSpider : XBase
+    class XSpider : XBase
     {
         // Spider
         public XSpiderType Type;
@@ -57,16 +68,26 @@ namespace Joueur.cs.Games.Spiders
         // Weaver
         public XWeb StrengtheningWeb;
         public XWeb WeakeningWeb;
+
+        public XSpider(Spider obj)
+            : base(obj)
+        {
+        }
     }
 
-    public class XNest : XBase
+    class XNest : XBase
     {
         public Point Location;
         public IEnumerable<XWeb> Webs;
         public IEnumerable<XSpider> Spiders;
+
+        public XNest(Nest obj)
+            : base(obj)
+        {
+        }
     }
 
-    public class XWeb : XBase
+    class XWeb : XBase
     {
         public double Length;
         public int Load;
@@ -74,9 +95,15 @@ namespace Joueur.cs.Games.Spiders
         public XNest NestB;
         public IEnumerable<XSpider> Spiders;
         public int Strength;
+
+        public XWeb(Web obj)
+            : base(obj)
+        {
+            this.Length = obj.Length;
+        }
     }
 
-    public class XState
+    class XState
     {
         // Players, Nests, Webs
     }
