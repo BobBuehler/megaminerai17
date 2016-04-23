@@ -49,7 +49,7 @@ namespace Joueur.cs.Games.Spiders
         /// </remarks>
         public override void Start()
         {
-			API.Init();
+			API.Init(Game, Player);
             base.Start();
         }
 
