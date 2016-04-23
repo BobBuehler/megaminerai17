@@ -134,11 +134,27 @@ namespace Joueur.cs.Games.Spiders
 
     class XAction
     {
-        public XSpider actor;
+        public XSpider Actor;
+        public XActionType Type;
 
-        public XSpiderType spawnType;
-        public XSpider targetSpider;
-        public XWeb targetWeb;
-        public XNest targetNest;
+        public XSpiderType SpawnType;
+        public XSpider TargetSpider;
+        public XWeb TargetWeb;
+        public XNest TargetNest;
+
+        public void execute(Game game)
+        {
+            switch(Type)
+            {
+                case XActionType.Spawn:
+                case XActionType.Consume:
+                case XActionType.Attack:
+                case XActionType.Move:
+                case XActionType.Cut:
+                case XActionType.Spit:
+                case XActionType.Weave:
+                    break;
+            }
+        }
     }
 }
