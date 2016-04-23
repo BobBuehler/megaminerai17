@@ -16,13 +16,9 @@ namespace Joueur.cs.Games.Spiders
             EDist = Extensions.Memoize<Point, double>(p => _edist(p));
 			Game = game;
 			Player = player;
+            idToKey = new Dictionary<string, int>();
+            keyToId = new Dictionary<int, string>();
         }
-		
-        public static void Refresh()
-        {
-        }
-
-        /********************/
 
         private static double _edist(Point d)
         {
@@ -60,6 +56,25 @@ namespace Joueur.cs.Games.Spiders
         {
             return Math.Sqrt(numWorkers);
         }
-		
+
+        private static IDictionary<string, int> idToKey;
+        private static IDictionary<int, string> keyToId;
+
+        public static int GetKey(string id)
+        {
+            int key;
+            if (!idToKey.TryGetValue(id, out key))
+            {
+                key = idToKey.Count;
+                idToKey[id] = key;
+                keyToId[key] = id;
+            }
+            return key;
+        }
+
+        public static string GetId(int key)
+        {
+            return keyToId[key];
+        }
     }
 }
