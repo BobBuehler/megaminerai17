@@ -78,8 +78,8 @@ namespace Joueur.cs.Games.Spiders
     class XNest : XBase
     {
         public Point Location;
-        public IEnumerable<XWeb> Webs;
-        public IEnumerable<XSpider> Spiders;
+        public IEnumerable<int> Webs;
+        public IEnumerable<int> Spiders;
 
         public XNest(Nest obj)
             : base(obj)
@@ -91,9 +91,9 @@ namespace Joueur.cs.Games.Spiders
     {
         public double Length;
         public int Load;
-        public XNest NestA;
-        public XNest NestB;
-        public IEnumerable<XSpider> Spiders;
+        public int NestA;
+        public int NestB;
+        public IEnumerable<int> Spiders;
         public int Strength;
 
         public XWeb(Web obj)
