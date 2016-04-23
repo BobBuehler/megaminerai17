@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Joueur.cs.Games.Spiders
 {
-    public static class Extensions
+    static class Extensions
     {
         public static int GetKey(this BaseGameObject obj)
         {
