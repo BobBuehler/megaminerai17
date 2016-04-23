@@ -19,7 +19,12 @@ namespace Joueur.cs.Games.Spiders
 
         public XBase(BaseGameObject obj)
         {
-            this.Key = obj.GetKey();
+            Key = obj.GetKey();
+        }
+
+        public XBase(XBase copy)
+        {
+            Key = copy.Key;
         }
 
         public override int GetHashCode()
@@ -31,17 +36,26 @@ namespace Joueur.cs.Games.Spiders
     class XPlayer : XBase
     {
         public int BroodMother;
-        public IEnumerable<int> Cutters;
-        public IEnumerable<int> Spitters;
-        public IEnumerable<int> Weavers;
+        public HashSet<int> Cutters;
+        public HashSet<int> Spitters;
+        public HashSet<int> Weavers;
 
         public XPlayer(Player obj)
             : base(obj)
         {
             BroodMother = obj.BroodMother.GetKey();
-            Cutters = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Cutter).Select(xs => xs.GetKey());
-            Spitters = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Spitter).Select(xs => xs.GetKey());
-            Weavers = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Weaver).Select(xs => xs.GetKey());
+            Cutters = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Cutter).Select(xs => xs.GetKey()).ToHashSet();
+            Spitters = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Spitter).Select(xs => xs.GetKey()).ToHashSet();
+            Weavers = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Weaver).Select(xs => xs.GetKey()).ToHashSet();
+        }
+
+        public XPlayer(XPlayer copy)
+            : base(copy)
+        {
+            BroodMother = copy.BroodMother;
+            Cutters = new HashSet<int>(copy.Cutters);
+            Spitters = new HashSet<int>(copy.Spitters);
+            Weavers = new HashSet<int>(copy.Weavers);
         }
     }
 
@@ -57,7 +71,7 @@ namespace Joueur.cs.Games.Spiders
         public int Health;
 
         // Spiderling
-        public IEnumerable<int> Coworkers;
+        public HashSet<int> Coworkers;
         public int MovingOnWeb;
         public int MovingToNest;
         public double WorkRemaining;
@@ -82,7 +96,7 @@ namespace Joueur.cs.Games.Spiders
             Eggs = -1;
             Health = -1;
 
-            Coworkers = Enumerable.Empty<int>();
+            Coworkers = new HashSet<int>();
             MovingOnWeb = -1;
             MovingToNest = -1;
             WorkRemaining = -1;
@@ -102,7 +116,7 @@ namespace Joueur.cs.Games.Spiders
             else
             {
                 var ling = obj as Spiderling;
-                Coworkers = ling.Coworkers.Select(s => s.GetKey());
+                Coworkers = ling.Coworkers.Select(s => s.GetKey()).ToHashSet();
                 MovingOnWeb = ling.MovingOnWeb.GetKey();
                 MovingToNest = ling.MovingToNest.GetKey();
                 WorkRemaining = ling.WorkRemaining;
@@ -125,20 +139,45 @@ namespace Joueur.cs.Games.Spiders
                 }
             }
         }
+
+        public XSpider(XSpider copy)
+            : base(copy)
+        {
+            Type = copy.Type;
+            Nest = copy.Nest;
+            Owner = copy.Owner;
+            Eggs = copy.Eggs;
+            Health = copy.Health;
+            Coworkers = new HashSet<int>(copy.Coworkers);
+            MovingOnWeb = copy.MovingOnWeb;
+            MovingToNest = copy.MovingToNest;
+            CuttingWeb = copy.CuttingWeb;
+            SpittingToNest = copy.SpittingToNest;
+            StrengtheningWeb = copy.StrengtheningWeb;
+            WeakeningWeb = copy.WeakeningWeb;
+        }
     }
 
     class XNest : XBase
     {
         public Point Location;
-        public IEnumerable<int> Webs;
-        public IEnumerable<int> Spiders;
+        public HashSet<int> Webs;
+        public HashSet<int> Spiders;
 
         public XNest(Nest obj)
             : base(obj)
         {
             Location = new Point(obj.X, obj.Y);
-            Webs = obj.Webs.Select(w => w.GetKey());
-            Spiders = obj.Spiders.Select(s => s.GetKey());
+            Webs = obj.Webs.Select(w => w.GetKey()).ToHashSet();
+            Spiders = obj.Spiders.Select(s => s.GetKey()).ToHashSet();
+        }
+
+        public XNest(XNest copy)
+            : base(copy)
+        {
+            Location = copy.Location;
+            Webs = new HashSet<int>(copy.Webs);
+            Spiders = new HashSet<int>(copy.Spiders);
         }
     }
 
@@ -148,8 +187,19 @@ namespace Joueur.cs.Games.Spiders
         public int Load;
         public int NestA;
         public int NestB;
-        public IEnumerable<int> Spiders;
+        public HashSet<int> Spiders;
         public int Strength;
+
+        public XWeb(XWeb copy)
+            : base(copy)
+        {
+            Length = copy.Length;
+            Load = copy.Load;
+            NestA = copy.NestA;
+            NestB = copy.NestB;
+            Spiders = new HashSet<int>(copy.Spiders);
+            Strength = copy.Strength;
+        }
 
         public XWeb(Web obj)
             : base(obj)
@@ -158,7 +208,7 @@ namespace Joueur.cs.Games.Spiders
             Load = obj.Load;
             NestA = obj.NestA.GetKey();
             NestB = obj.NestB.GetKey();
-            Spiders = obj.Spiderlings.Select(s => s.GetKey());
+            Spiders = obj.Spiderlings.Select(s => s.GetKey()).ToHashSet();
             Strength = obj.Strength;
         }
     }
@@ -182,15 +232,14 @@ namespace Joueur.cs.Games.Spiders
             Webs = game.Webs.Select(w => new XWeb(w)).ToDictionary(w => w.Key);
         }
 
-        public XState(XState state)
+        public XState(XState copy)
         {
-            // TODO, invoke copy constructors
-            CurrentPlayer = state.CurrentPlayer;
-            CurrentTurn = state.CurrentTurn;
-            Players = state.Players.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            Spiders = state.Spiders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            Nests = state.Nests.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            Webs = state.Webs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            CurrentPlayer = copy.CurrentPlayer;
+            CurrentTurn = copy.CurrentTurn;
+            Players = copy.Players.ToDictionary(kvp => kvp.Key, kvp => new XPlayer(kvp.Value));
+            Spiders = copy.Spiders.ToDictionary(kvp => kvp.Key, kvp => new XSpider(kvp.Value));
+            Nests = copy.Nests.ToDictionary(kvp => kvp.Key, kvp => new XNest(kvp.Value));
+            Webs = copy.Webs.ToDictionary(kvp => kvp.Key, kvp => new XWeb(kvp.Value));
         }
     }
 
