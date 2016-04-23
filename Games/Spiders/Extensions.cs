@@ -128,6 +128,11 @@ namespace Joueur.cs.Games.Spiders
             yield return t;
         }
 
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
+        {
+            return new HashSet<T>(source);
+        }
+
         public static double EDist(this Point start, Point end)
         {
             return API.EDist(new Point(start.x - end.x, start.y - end.y));
