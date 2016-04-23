@@ -105,6 +105,8 @@ namespace Joueur.cs.Games.Spiders
 
     class XState
     {
+        public int CurrentPlayer;
+        public int CurrentTurn;
         public IDictionary<int, XPlayer> Players;
         public IDictionary<int, XSpider> Spiders;
         public IDictionary<int, XNest> Nests;
@@ -112,10 +114,23 @@ namespace Joueur.cs.Games.Spiders
 
         public XState(Game game)
         {
+            CurrentPlayer = game.CurrentPlayer.GetKey();
+            CurrentTurn = game.CurrentTurn;
             Players = game.Players.Select(p => new XPlayer(p)).ToDictionary(p => p.Key);
             Spiders = game.Players.SelectMany(p => p.Spiders).Select(s => new XSpider(s)).ToDictionary(s => s.Key);
             Nests = game.Nests.Select(n => new XNest(n)).ToDictionary(n => n.Key);
             Webs = game.Webs.Select(w => new XWeb(w)).ToDictionary(w => w.Key);
+        }
+
+        public XState(XState state)
+        {
+            // TODO, invoke copy constructors
+            CurrentPlayer = state.CurrentPlayer;
+            CurrentTurn = state.CurrentTurn;
+            Players = state.Players.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            Spiders = state.Spiders.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            Nests = state.Nests.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            Webs = state.Webs.ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
         }
     }
 
@@ -141,20 +156,5 @@ namespace Joueur.cs.Games.Spiders
         public XSpider TargetSpider;
         public XWeb TargetWeb;
         public XNest TargetNest;
-
-        public void execute(Game game)
-        {
-            switch(Type)
-            {
-                case XActionType.Spawn:
-                case XActionType.Consume:
-                case XActionType.Attack:
-                case XActionType.Move:
-                case XActionType.Cut:
-                case XActionType.Spit:
-                case XActionType.Weave:
-                    break;
-            }
-        }
     }
 }
