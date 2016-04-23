@@ -7,6 +7,11 @@ namespace Joueur.cs.Games.Spiders
 {
     public static class Extensions
     {
+        public static int GetKey(this BaseGameObject obj)
+        {
+            return (API.GetKey(obj.Id));
+        }
+
         public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
         {
             foreach (var s in source)
