@@ -1,4 +1,4 @@
-// This is where you build your AI for the Spiders game.
+﻿// This is where you build your AI for the Spiders game.
 
 using System;
 using System.Collections.Generic;
@@ -38,7 +38,7 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>string of you AI's name.</returns>
         public override string GetName()
         {
-            return "Spiders C# Player"; // REPLACE THIS WITH YOUR TEAM NAME!
+            return "¯\¯\¯\¯\_(ツ)_/¯/¯/¯/¯"; // REPLACE THIS WITH YOUR TEAM NAME!
         }
 
         /// <summary>
