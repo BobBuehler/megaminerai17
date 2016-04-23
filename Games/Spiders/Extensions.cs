@@ -96,5 +96,10 @@ namespace Joueur.cs.Games.Spiders
         {
             yield return t;
         }
+
+        public static double EDist(this Point start, Point end)
+        {
+            return API.EDist(new Point(start.x - end.x, start.y - end.y));
+        }
     }
 }
