@@ -19,7 +19,7 @@ namespace Joueur.cs.Games.Spiders
 
         public XBase(BaseGameObject obj)
         {
-            this.Key = API.GetKey(obj.Id);
+            this.Key = obj.GetKey();
         }
 
         public override int GetHashCode()
@@ -30,7 +30,6 @@ namespace Joueur.cs.Games.Spiders
 
     class XPlayer : XBase
     {
-        public int ID;
         public int BroodMother;
         public IEnumerable<int> Cutters;
         public IEnumerable<int> Spitters;
@@ -39,6 +38,10 @@ namespace Joueur.cs.Games.Spiders
         public XPlayer(Player obj)
             : base(obj)
         {
+            BroodMother = obj.BroodMother.GetKey();
+            Cutters = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Cutter).Select(xs => xs.GetKey());
+            Spitters = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Spitter).Select(xs => xs.GetKey());
+            Weavers = obj.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Weaver).Select(xs => xs.GetKey());
         }
     }
 
@@ -72,6 +75,53 @@ namespace Joueur.cs.Games.Spiders
         public XSpider(Spider obj)
             : base(obj)
         {
+            Type = XSpiderType.BroodMother;
+            Nest = obj.Nest.GetKey();
+            Owner = obj.Owner.GetKey();
+
+            Eggs = -1;
+            Health = -1;
+
+            Coworkers = Enumerable.Empty<int>();
+            MovingOnWeb = -1;
+            MovingToNest = -1;
+            WorkRemaining = -1;
+
+            CuttingWeb = -1;
+            SpittingToNest = -1;
+            StrengtheningWeb = -1;
+            WeakeningWeb = -1;
+
+            if (obj is Spiderling)
+            {
+                Coworkers = (obj as Spiderling).Coworkers.Select(s => s.GetKey());
+                MovingOnWeb = (obj as Spiderling).MovingOnWeb.GetKey();
+                MovingToNest = (obj as Spiderling).MovingToNest.GetKey();
+                WorkRemaining = (obj as Spiderling).WorkRemaining;
+            }
+
+            if (obj is Cutter)
+            {
+                Type = XSpiderType.Cutter;
+                CuttingWeb = (obj as Cutter).CuttingWeb.GetKey();
+            }
+            else if (obj is Spitter)
+            {
+                Type = XSpiderType.Spitter;
+                SpittingToNest = (obj as Spitter).SpittingWebToNest.GetKey();
+            }
+            else if (obj is Weaver)
+            {
+                Type = XSpiderType.Weaver;
+                StrengtheningWeb = (obj as Weaver).StrengtheningWeb.GetKey();
+                WeakeningWeb = (obj as Weaver).WeakeningWeb.GetKey();
+            }
+            else if (obj is BroodMother)
+            {
+                Type = XSpiderType.BroodMother;
+                Eggs = (obj as BroodMother).Eggs;
+                Health = (obj as BroodMother).Health;
+            }
         }
     }
 
@@ -84,6 +134,9 @@ namespace Joueur.cs.Games.Spiders
         public XNest(Nest obj)
             : base(obj)
         {
+            Location = new Point(obj.X, obj.Y);
+            Webs = obj.Webs.Select(w => w.GetKey());
+            Spiders = obj.Spiders.Select(s => s.GetKey());
         }
     }
 
@@ -99,7 +152,12 @@ namespace Joueur.cs.Games.Spiders
         public XWeb(Web obj)
             : base(obj)
         {
-            this.Length = obj.Length;
+            Length = obj.Length;
+            Load = obj.Load;
+            NestA = obj.NestA.GetKey();
+            NestB = obj.NestB.GetKey();
+            Spiders = obj.Spiderlings.Select(s => s.GetKey());
+            Strength = obj.Strength;
         }
     }
 
