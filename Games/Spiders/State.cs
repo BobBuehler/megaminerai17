@@ -118,4 +118,27 @@ namespace Joueur.cs.Games.Spiders
             Webs = game.Webs.Select(w => new XWeb(w)).ToDictionary(w => w.Key);
         }
     }
+
+    enum XActionType
+    {
+        Consume,
+        Spawn,
+
+        Attack,
+        Move,
+
+        Cut,
+        Spit,
+        Weave
+    }
+
+    class XAction
+    {
+        public XSpider actor;
+
+        public XSpiderType spawnType;
+        public XSpider targetSpider;
+        public XWeb targetWeb;
+        public XNest targetNest;
+    }
 }
