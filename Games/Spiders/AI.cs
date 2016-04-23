@@ -38,7 +38,7 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>string of you AI's name.</returns>
         public override string GetName()
         {
-            return "¯\¯\¯\¯\_(ツ)_/¯/¯/¯/¯"; // REPLACE THIS WITH YOUR TEAM NAME!
+            return "¯\\¯\\¯\\¯\\_(ツ)_/¯/¯/¯/¯"; // REPLACE THIS WITH YOUR TEAM NAME!
         }
 
         /// <summary>
