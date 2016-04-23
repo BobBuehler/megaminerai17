@@ -114,7 +114,8 @@ namespace Joueur.cs.Games.Spiders
         {
             Players = game.Players.Select(p => new XPlayer(p)).ToDictionary(p => p.Key);
             Spiders = game.Players.SelectMany(p => p.Spiders).Select(s => new XSpider(s)).ToDictionary(s => s.Key);
+            Nests = game.Nests.Select(n => new XNest(n)).ToDictionary(n => n.Key);
+            Webs = game.Webs.Select(w => new XWeb(w)).ToDictionary(w => w.Key);
         }
     }
-
 }
