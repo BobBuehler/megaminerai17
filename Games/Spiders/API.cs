@@ -12,12 +12,6 @@ namespace Joueur.cs.Games.Spiders
             EDist = Extensions.Memoize<Point, double>(p => _edist(p));
         }
 
-        public static void Refresh()
-        {
-        }
-
-        /********************/
-
         private static double _edist(Point d)
         {
             return Math.Sqrt(d.x * d.x + d.y * d.y);
