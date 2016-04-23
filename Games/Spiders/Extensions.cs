@@ -91,5 +91,10 @@ namespace Joueur.cs.Games.Spiders
             cache.OnMiss = delegate(T input, out TResult output) { output = func(input); return true; };
             return t => cache[t];
         }
+
+        public static IEnumerable<T> Single<T>(this T t)
+        {
+            yield return t;
+        }
     }
 }
