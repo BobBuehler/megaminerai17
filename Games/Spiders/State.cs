@@ -15,30 +15,30 @@ namespace Joueur.cs.Games.Spiders
 
     class XBase
     {
-        public string hash;
-        public override int GetHashCode()
-        {
-            return hash.GetHashCode();
-        }
+        public int Key;
 
         public XBase(BaseGameObject obj)
         {
-            this.hash = obj.Id;
+            this.Key = API.GetKey(obj.Id);
+        }
+
+        public override int GetHashCode()
+        {
+            return Key;
         }
     }
 
     class XPlayer : XBase
     {
         public int ID;
-        public XSpider BroodMother;
-        public IEnumerable<XSpider> Cutters;
-        public IEnumerable<XSpider> Spitters;
-        public IEnumerable<XSpider> Weavers;
+        public int BroodMother;
+        public IEnumerable<int> Cutters;
+        public IEnumerable<int> Spitters;
+        public IEnumerable<int> Weavers;
 
-        public XPlayer(Player obj, int id)
+        public XPlayer(Player obj)
             : base(obj)
         {
-            ID = id;
         }
     }
 
@@ -46,28 +46,28 @@ namespace Joueur.cs.Games.Spiders
     {
         // Spider
         public XSpiderType Type;
-        public XNest Nest;
-        public XPlayer Owner;
+        public int Nest;
+        public int Owner;
 
         // BroodMother
         public double Eggs;
         public int Health;
 
         // Spiderling
-        public IEnumerable<XSpider> Coworkers;
-        public XWeb MovingOnWeb;
-        public XNest MovingToNest;
+        public IEnumerable<int> Coworkers;
+        public int MovingOnWeb;
+        public int MovingToNest;
         public double WorkRemaining;
 
         // Cutter
-        public XWeb CuttingWeb;
+        public int CuttingWeb;
 
         // Spitter
-        public XNest SpittingToNest;
+        public int SpittingToNest;
 
         // Weaver
-        public XWeb StrengtheningWeb;
-        public XWeb WeakeningWeb;
+        public int StrengtheningWeb;
+        public int WeakeningWeb;
 
         public XSpider(Spider obj)
             : base(obj)
@@ -105,6 +105,16 @@ namespace Joueur.cs.Games.Spiders
 
     class XState
     {
-        // Players, Nests, Webs
+        public IDictionary<int, XPlayer> Players;
+        public IDictionary<int, XSpider> Spiders;
+        public IDictionary<int, XNest> Nests;
+        public IDictionary<int, XWeb> Webs;
+
+        public XState(Game game)
+        {
+            Players = game.Players.Select(p => new XPlayer(p)).ToDictionary(p => p.Key);
+            Spiders = game.Players.SelectMany(p => p.Spiders).Select(s => new XSpider(s)).ToDictionary(s => s.Key);
+        }
     }
+
 }
