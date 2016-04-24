@@ -265,7 +265,7 @@ namespace Joueur.cs.Games.Spiders
         {
             var idleCutters = nest.Spiders.Where(spi => Smarts.Game.CurrentPlayer == spi.Owner).Where(spi => spi is Cutter).Select(spi => (Cutter)spi).Where(s => s.WorkRemaining == 0);
 
-            var enemyWebs = Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == nest).Select(spi => spi.MovingOnWeb).OrderBy(API.webLength).Distinct().Reverse();
+            var enemyWebs = Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == nest).Select(spi => spi.MovingOnWeb).OrderBy(API.webLength).Distinct();
             var unusedCutters = cuttersCutWithSuicide(idleCutters, enemyWebs);
 
             //var targetWebs = Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == null).Where(spi => spi.Nest.Webs.Any(web => (web.NestA == nest || web.NestB == nest)))
