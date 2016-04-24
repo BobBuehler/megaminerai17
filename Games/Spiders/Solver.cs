@@ -119,6 +119,56 @@ namespace Joueur.cs.Games.Spiders
             }
         }
 
+        public static IEnumerable<XAction> mobilizeCutters(XState state, IEnumerable<Tuple<int, int>> wantedWebs)
+        {
+            var existingWebs = state.Webs.Values.SelectMany(w => new[] { Tuple.Create(w.NestA, w.NestB), Tuple.Create(w.NestB, w.NestA) }).ToHashSet();
+            var websThatNeedCut = existingWebs.Where(web => !wantedWebs.Contains(web));
+            var idleCutters = state.Players[state.CurrentPlayer].Cutters
+                .Select(s => state.Spiders[s])
+                .Where(s => s.WorkRemaining == 0);
+            var nestsWithIdleCutters = idleCutters.Select(s => s.Nest).ToHashSet();
+            var connectedWebsToCut = websThatNeedCut.Where(web => nestsWithIdleCutters.Contains(web.Item1) || nestsWithIdleCutters.Contains(web.Item2));
+
+            //var connectedWebsToMake = websThatDontExist.Where(t => nestsWithIdleCutters.Contains(t.Item1) || nestsWithIdleCutters.Contains(t.Item2)).ToLazyList();
+            //var nestsOfInterest = websThatDontExist.SelectMany(w => new[] { w.Item1, w.Item2 }).ToHashSet();
+
+            var broodMotherNest = state.Nests[API.getAllyBroodMother(state).Nest];
+
+            var closeEnemySpiders = API.getEnemySpidersNearNest(state, broodMotherNest, 20);
+            var closeEnemyNests = closeEnemySpiders.Select( spi => state.Nests[spi.Nest] ).ToHashSet();
+            var broodMotherCutQuota = 10 + 5 * closeEnemyNests.Count();
+
+            var quoteSpiders = idleCutters.Where(spider => state.Nests[spider.Nest] == broodMotherNest).Take( broodMotherCutQuota );
+            var otherSpiders = idleCutters.Where(spider => !quoteSpiders.Contains(spider));
+
+            var bmWebs = connectedWebsToCut.Where(web => state.Nests[web.Item1] == broodMotherNest || state.Nests[web.Item2] == broodMotherNest);
+            var otherWebs = connectedWebsToCut.Where(web => !bmWebs.Contains(web));
+
+            bmWebs.OrderBy(key => state.Nests[key.Item1].Location.EDist(state.Nests[key.Item2].Location));
+            otherWebs.OrderBy(key => state.Nests[key.Item1].Location.EDist(state.Nests[key.Item2].Location));
+
+            foreach(var spider in quoteSpiders)
+            {
+                //Guard broodMother
+            }
+
+
+            foreach (var web in otherWebs)
+            {
+                /*
+                var search = new AStar<XNest>
+                    (
+                    state.Nests[spitter.Nest].Single(),
+                    n => nestsOfInterest.Contains(n.Key),
+                    (n1, n2) => API.movementTime(n1.Location.EDist(n2.Location)),
+                    n => 0,
+                    n => getConnectedNests(state, n)
+                    );
+                 */
+            }
+            return null;
+        }
+
         public static IEnumerable<XNest> getConnectedNests(XState state, XNest nest)
         {
             return nest.Webs.Select(w => API.getNextNest(state, nest, state.Webs[w]));
@@ -141,6 +191,28 @@ namespace Joueur.cs.Games.Spiders
                     yield return Tuple.Create(edge.p1, edge.p2);
                 }
             }
+
+        }
+
+        public static void SpreadCutters()
+        {
+            Smarts.Refresh();
+            var ourCutters = Smarts.Game.CurrentPlayer.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Cutter).Select(s => s as Cutter).ToArray();
+            var idleCutters = ourCutters.Where(s => s.WorkRemaining == 0);
+            var nestsWithCutters = ourCutters.Select(s => s.MovingToNest != null ? s.MovingToNest : s.Nest).Select(n => n.ToPoint()).ToHashSet();
+
+            var broodMotherNest = Smarts.Game.CurrentPlayer.BroodMother.Nest;
+
+            var closeEnemySpiders = API.getEnemySpidersNearNest(broodMotherNest, 20);
+            var closeEnemyNests = closeEnemySpiders.Select(spi => state.Nests[spi.Nest]).ToHashSet();
+            var broodMotherCutQuota = 10 + 5 * closeEnemyNests.Count();
+
+            var quoteSpiders = idleCutters.Where(spider => state.Nests[spider.Nest] == broodMotherNest).Take(broodMotherCutQuota);
+            var otherSpiders = idleCutters.Where(spider => !quoteSpiders.Contains(spider));
+
+            var bmWebs = connectedWebsToCut.Where(web => state.Nests[web.Item1] == broodMotherNest || state.Nests[web.Item2] == broodMotherNest);
+            var otherWebs = connectedWebsToCut.Where(web => !bmWebs.Contains(web));
+
 
         }
 

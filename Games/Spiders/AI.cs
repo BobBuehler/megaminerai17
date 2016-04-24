@@ -99,8 +99,8 @@ namespace Joueur.cs.Games.Spiders
                     API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
                 }
 
-
                 Solver.SpreadSpitters();
+                Solver.SpreadCutters();
             }
             catch (Exception e)
             {

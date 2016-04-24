@@ -299,5 +299,21 @@ namespace Joueur.cs.Games.Spiders
                 // TODO MORE!
             }
         }
+
+        public static IEnumerable<XSpider> getEnemySpidersNearNest(XState state, XNest nest, double radius)
+        {
+            return state.Spiders.Values.Where( spi => spi.Owner != state.CurrentPlayer ).Where(spider => state.Nests[spider.Nest].Location.EDist( nest.Location ) <= radius );
+        }
+
+        public static IEnumerable<XSpider> getEnemySpidersNearNest(Nest nest, double radius)
+        {
+            return Smarts.TheirSpiderlings.Where( spi => spi. );
+            //return state.Spiders.Values.Where(spi => spi.Owner != state.CurrentPlayer).Where(spider => state.Nests[spider.Nest].Location.EDist(nest.Location) <= radius);
+        }
+
+        public static XSpider getAllyBroodMother(XState state)
+        {
+            return state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
+        }
     }
 }
