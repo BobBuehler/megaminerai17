@@ -144,37 +144,39 @@ namespace Joueur.cs.Games.Spiders
 
         }
 
-        public static void SpreadSpitters()
+        public static void SpreadSpiderlings(IEnumerable<Spiderling> lings)
         {
             Smarts.Refresh();
-            var ourSpitters = Smarts.Game.CurrentPlayer.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Spitter).Select(s => s as Spitter).ToArray();
-            var idleSpitters = ourSpitters.Where(s => s.WorkRemaining == 0);
-            var nestsWithSpitters = ourSpitters.Select(s => s.MovingToNest != null ? s.MovingToNest : s.Nest).Select(n => n.ToPoint()).ToHashSet();
-            var nestsWithoutSpitters = Smarts.Game.Nests.Where(n => !nestsWithSpitters.Contains(n.ToPoint()));
-            if (!idleSpitters.Any() || !nestsWithoutSpitters.Any())
+            var idle = lings.Where(s => s.WorkRemaining == 0);
+            if (!idle.Any())
             {
                 return;
             }
 
-            foreach(var spitter in idleSpitters)
+            foreach (var ling in idle)
             {
                 Smarts.Refresh();
-                var closest = nestsWithoutSpitters.OrderBy(n => n.ToPoint().EDist(spitter.Nest.ToPoint()));
-                foreach (var nest in closest)
+                var lingsPerPoint = Smarts.Game.Nests.ToDictionary(n => n.ToPoint(), n => 0);
+                lings.ForEach(s => lingsPerPoint[s.ToPoint()]++);
+                var nearAndLess = Smarts.Game.Nests.Where(n => lingsPerPoint[n.ToPoint()] < lingsPerPoint[ling.Nest.ToPoint()]).OrderBy(n => ling.Nest.ToPoint().EDist(n.ToPoint()));
+                foreach (var nest in nearAndLess)
                 {
                     Web web;
-                    if (Smarts.Webs.TryGetValue(Tuple.Create(spitter.Nest.ToPoint(), nest.ToPoint()), out web))
+                    if (!Smarts.Webs.TryGetValue(Tuple.Create(ling.Nest.ToPoint(), nest.ToPoint()), out web))
                     {
-                        if (web.Load < web.Strength && spitter.Nest.Spiders.Count(s => s.GetXSpiderType() == XSpiderType.Spitter) > 2)
+                        if (ling is Spitter)
                         {
-                            spitter.Move(web);
+                            (ling as Spitter).Spit(nest);
                             break;
                         }
                     }
                     else
                     {
-                        spitter.Spit(nest);
-                        break;
+                        if (web.Load < web.Strength)
+                        {
+                            ling.Move(web);
+                            break;
+                        }
                     }
                 }
             }

@@ -100,14 +100,12 @@ namespace Joueur.cs.Games.Spiders
                 }
 
 
-                Solver.SpreadSpitters();
+                Solver.SpreadSpiderlings(Game.CurrentPlayer.Spiders.Where(s => s is Spitter).Select(s => s as Spitter));
             }
             catch (Exception e)
             {
-                if (e.Message != "ACK")
-                {
-                    Console.WriteLine(e);
-                }
+                Console.WriteLine(Game.CurrentPlayer.TimeRemaining);
+                Console.WriteLine(e);
             }
             return true;
         }
