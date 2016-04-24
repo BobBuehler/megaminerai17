@@ -42,7 +42,10 @@ namespace Joueur.cs.Games.Spiders
 
         public static void AddSpider(XState state, XSpider broodMother, XSpiderType type)
         {
-
+            // Create XSpider with correct Type and Owner
+            // Add to State
+            // Add to Player
+            // Add to Nest
         }
 
         public static void AttackSpider(XState state, XSpider attacker, XSpider target)
@@ -52,7 +55,7 @@ namespace Joueur.cs.Games.Spiders
 
         public static void MoveSpider(XState state, XSpider mover, XWeb target)
         {
-
+            // Update references
         }
 
         public static void CutWeb(XState state, XSpider mover, XWeb target)
@@ -74,9 +77,9 @@ namespace Joueur.cs.Games.Spiders
         {
             var player = state.Players.Values.First(p => p.Key != state.CurrentPlayer);
             
-            ProgressSpitters(state, player.Spitters);
-            ProgressCutters(state, player.Cutters);
-            ProgressWeavers(state, player.Weavers);
+            //ProgressSpitters(state, state.Spiders.Where(s => s.);
+            //ProgressCutters(state, player.Cutters);
+            //ProgressWeavers(state, player.Weavers);
 
             ProgressMoves(state, player.Spitters.Concat(player.Cutters).Concat(player.Weavers));
             ProgressBroodMotherHealth(state, player.BroodMother);
@@ -86,17 +89,18 @@ namespace Joueur.cs.Games.Spiders
             state.CurrentTurn++;
         }
 
-        public static void ProgressSpitters(XState state, IEnumerable<int> spiders)
+        public static void ProgressSpitters(XState state, IEnumerable<XSpider> spitters)
+        {
+            // Cluster into coworker sets
+            // Progress coworkers
+        }
+
+        public static void ProgressCutters(XState state, IEnumerable<XSpider> cutters)
         {
 
         }
 
-        public static void ProgressCutters(XState state, IEnumerable<int> spiders)
-        {
-
-        }
-
-        public static void ProgressWeavers(XState state, IEnumerable<int> spiders)
+        public static void ProgressWeavers(XState state, IEnumerable<XSpider> weavers)
         {
 
         }
