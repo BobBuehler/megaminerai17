@@ -195,6 +195,17 @@ namespace Joueur.cs.Games.Spiders
                     MoveToQuota<Spitter>(stop, theirNest, outgoing, 2);
                 }
             }
+
+            var closeStops = Game.Nests.Where(n => n != ourNest && n != theirNest).OrderBy(n => ourNest.EDist(n));
+            foreach (var stop in stops)
+            {
+                Web incoming = Smarts.Webs.GetOrDefault(Tuple.Create(ourNest.ToPoint(), stop.ToPoint()));
+
+                if (incoming != null)
+                {
+                    MoveToQuota<Weaver>(ourNest, stop, incoming, 2);
+                }
+            }
         }
 
         public void Spit(Nest nestA, Nest nestB)
