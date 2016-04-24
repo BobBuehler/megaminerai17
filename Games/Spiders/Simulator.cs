@@ -29,8 +29,11 @@ namespace Joueur.cs.Games.Spiders
                 case XActionType.Spit:
                     SpitToNest(state, action.Actor, action.TargetNest);
                     break;
-                case XActionType.Weave:
-                    WeaveWeb(state, action.Actor, action.TargetWeb);
+                case XActionType.Strengthen:
+                    StrengthenWeb(state, action.Actor, action.TargetWeb);
+                    break;
+                case XActionType.Weaken:
+                    WeakenWeb(state, action.Actor, action.TargetWeb);
                     break;
             }
         }
@@ -117,33 +120,78 @@ namespace Joueur.cs.Games.Spiders
 
         public static void CutWeb(XState state, XSpider cutter, XWeb target)
         {
-            //coworkers
-            cutter.Coworkers = API.findCoworkers(state, cutter);
-            if(!cutter.Coworkers.Any())//If there are no coworkers, calculate work remaining
+            cutter.CuttingWeb = target.Key;
+
+            var coworkers = API.calcCoworkers(state, cutter, API.isCoCutter);
+
+            cutter.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            if(coworkers.Count == 1)
             {
                 cutter.WorkRemaining = API.cutWorkRemaining(target.Strength, target.Length);
             }
             else
             {
-                cutter.WorkRemaining = state.Spiders[cutter.Coworkers.First()].WorkRemaining;
+                var otherWorkers = coworkers.Where(c => c.Key != cutter.Key);
+                cutter.WorkRemaining = otherWorkers.First().WorkRemaining;
+                otherWorkers.ForEach(c => c.Coworkers.Add(cutter.Key));
             }
+        }
 
-            cutter.Coworkers.Add(cutter.Key);//Add yourself to the list (it may already contain you, but it doesn't hurt to do it again.
-            
-            foreach (var worker in cutter.Coworkers)//Add self as coworker to each coworker
+        public static void SpitToNest(XState state, XSpider spitter, XNest target)
+        {
+            spitter.SpittingToNest = target.Key;
+
+            var coworkers = API.calcCoworkers(state, spitter, API.isCoSpitter);
+
+            spitter.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            if (coworkers.Count == 1)
             {
-                state.Spiders[worker].Coworkers.Add(cutter.Key);
-            }           
+                spitter.WorkRemaining = API.spitWorkRemaining(state.Nests[spitter.Nest].Location.EDist(target.Location));
+            }
+            else
+            {
+                var otherWorkers = coworkers.Where(c => c.Key != spitter.Key);
+                spitter.WorkRemaining = otherWorkers.First().WorkRemaining;
+                otherWorkers.ForEach(c => c.Coworkers.Add(spitter.Key));
+            }
         }
 
-        public static void SpitToNest(XState state, XSpider mover, XNest target)
+        public static void StrengthenWeb(XState state, XSpider weaver, XWeb target)
         {
+            weaver.StrengtheningWeb = target.Key;
 
+            var coworkers = API.calcCoworkers(state, weaver, API.isCoStrengthener);
+
+            weaver.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            if (coworkers.Count == 1)
+            {
+                weaver.WorkRemaining = API.weaveWorkRemaining(target.Strength, target.Length);
+            }
+            else
+            {
+                var otherWorkers = coworkers.Where(c => c.Key != weaver.Key);
+                weaver.WorkRemaining = otherWorkers.First().WorkRemaining;
+                otherWorkers.ForEach(c => c.Coworkers.Add(weaver.Key));
+            }
         }
 
-        public static void WeaveWeb(XState state, XSpider mover, XWeb target)
+        public static void WeakenWeb(XState state, XSpider weaver, XWeb target)
         {
+            weaver.StrengtheningWeb = target.Key;
 
+            var coworkers = API.calcCoworkers(state, weaver, API.isCoWeakener);
+
+            weaver.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            if (coworkers.Count == 1)
+            {
+                weaver.WorkRemaining = API.weaveWorkRemaining(target.Strength, target.Length);
+            }
+            else
+            {
+                var otherWorkers = coworkers.Where(c => c.Key != weaver.Key);
+                weaver.WorkRemaining = otherWorkers.First().WorkRemaining;
+                otherWorkers.ForEach(c => c.Coworkers.Add(weaver.Key));
+            }
         }
 
         public static void AddWeb(XState state, int nestA, int nestB)

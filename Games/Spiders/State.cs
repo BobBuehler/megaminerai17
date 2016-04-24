@@ -290,7 +290,8 @@ namespace Joueur.cs.Games.Spiders
 
         Cut,
         Spit,
-        Weave
+        Strengthen,
+        Weaken
     }
 
     class XAction

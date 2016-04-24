@@ -92,9 +92,14 @@ namespace Joueur.cs.Games.Spiders
             return keyToId[key];
         }
 
-        public static XNest getNextNest(XState state, XNest node, XWeb web)
+        public static int getNextNest(int here, int nestA, int nestB)
         {
-            return state.Nests[web.NestA == node.Key ? web.NestB : web.NestA];
+            return here == nestA ? nestB : nestA;
+        }
+
+        public static XNest getNextNest(XState state, XNest nest, XWeb web)
+        {
+            return state.Nests[getNextNest(nest.Key, web.NestA, web.NestB)];
         }
 
         public static IEnumerable< Tuple<XWeb, XNest> > getNeighbors(XState state, XNest node)
@@ -169,41 +174,57 @@ namespace Joueur.cs.Games.Spiders
             return state.Nests.Values.Where(n => !connectedNests.Contains(n.Key));
         }
 
-        public static bool areCoworkers(XSpider spider1, XSpider spider2)
+        public static bool isCoCutter(XSpider spider1, XSpider spider2)
         {
-            if( ( spider1.SpittingToNest == spider2.SpittingToNest && spider1.Nest == spider2.Nest )
-             || ( spider1.SpittingToNest == spider2.Nest && spider2.SpittingToNest == spider1.Nest ) )
-            {
-                return true;
-            }
-
-            if ( spider1.StrengtheningWeb == spider2.StrengtheningWeb
-              || spider1.WeakeningWeb == spider2.WeakeningWeb )
-            {
-                return true;
-            }
-
-            if (spider1.CuttingWeb == spider2.CuttingWeb)
-            {
-                return true;
-            }
-
-            return false;
+            return spider1.CuttingWeb != -1 && spider1.CuttingWeb == spider2.CuttingWeb;
         }
 
-        public static HashSet<int> findCoworkers(XState state, XSpider spider)
+        public static bool isCoSpitter(XSpider spider1, XSpider spider2)
         {
-            var spiders = state.Nests[spider.Nest].Spiders;
-            var otherSpiders = state.Nests[spider.MovingToNest].Spiders;
+            return spider1.SpittingToNest != -1 && 
+                ((spider1.SpittingToNest == spider2.SpittingToNest && spider1.Nest == spider2.Nest)
+                || (spider1.Nest == spider2.SpittingToNest && spider1.SpittingToNest == spider2.Nest));
+        }
 
-            var coworkers = spiders.Concat(otherSpiders).Where(spi => areCoworkers(spider, state.Spiders[spi]) && spi != spider.Key );
-            
-            if(coworkers.Any())
+        public static bool isCoStrengthener(XSpider spider1, XSpider spider2)
+        {
+            return spider1.StrengtheningWeb != -1 && spider1.StrengtheningWeb == spider2.StrengtheningWeb;
+        }
+
+        public static bool isCoWeakener(XSpider spider1, XSpider spider2)
+        {
+            return spider1.WeakeningWeb != -1 && spider1.WeakeningWeb == spider2.WeakeningWeb;
+        }
+
+        public static XNest OtherNest(XState state, XSpider spider)
+        {
+            var otherNest = spider.SpittingToNest;
+            var targetWeb = spider.CuttingWeb;
+            if (spider.StrengtheningWeb != -1)
             {
-                return state.Spiders[coworkers.First()].Coworkers;
+                targetWeb = spider.StrengtheningWeb;
             }
+            if (spider.WeakeningWeb != -1)
+            {
+                targetWeb = spider.WeakeningWeb;
+            }
+            if (targetWeb != -1)
+            {
+                var web = state.Webs[targetWeb];
+                otherNest = getNextNest(spider.Nest, web.NestA, web.NestB);
+            }
+            return otherNest == -1 ? null : state.Nests[otherNest];
+        }
 
-            return spider.Key.Single().ToHashSet();
+        public static HashSet<XSpider> findCoworkers(XState state, XSpider spider, Func<XSpider, XSpider, bool> areCoworkers)
+        {
+            var otherNest = OtherNest(state, spider);
+
+            return state.Nests[spider.Nest].Spiders
+                .Concat(otherNest.Spiders)
+                .Select(s => state.Spiders[s])
+                .Where(s => areCoworkers(spider, s))
+                .ToHashSet();
         }
     }
 }
