@@ -199,5 +199,78 @@ namespace Joueur.cs.Games.Spiders
                 }
             }
         }
+
+        public static Tuple<IEnumerable<Point>, int> CalcPath(Point start, Func<Point, bool> isGoal)
+        {
+            var search = new AStar<Tuple<Point, int>>
+                (
+                    Tuple.Create(start, 0).Single(),
+                    t => isGoal(t.Item1),
+                    (t1, t2) => t2.Item2 - t1.Item2,
+                    p => 0,
+                    t => Smarts.Nests.Keys.Select(n => Tuple.Create(n, t.Item2 + API.movementTime(t.Item1.EDist(n)))).Where(t2 => t2.Item2 < 10 && WillHold(t.Item1, t2.Item1, t2.Item2))
+                );
+
+            return Tuple.Create(search.Path.Select(t => t.Item1), search.Path.Sum(t => t.Item2));
+        }
+
+        public static bool WillHold(Point start, Point end, int turnsFromNow)
+        {
+            var nestA = Smarts.Nests[start];
+            var nestB = Smarts.Nests[end];
+            Web web;
+            if (Smarts.Webs.TryGetValue(Tuple.Create(start, end), out web))
+            {
+                var futureLoad = web.Spiderlings.Count(s => s.WorkRemaining > turnsFromNow);
+                if (futureLoad == web.Strength)
+                {
+                    return false;
+                }
+                var cutter = nestA.Spiders.Concat(nestB.Spiders).Where(s => s is Cutter).Select(s => s as Cutter).FirstOrDefault(c => c.CuttingWeb == web);
+                if (cutter != null)
+                {
+                    return cutter.WorkRemaining / Math.Sqrt(cutter.NumberOfCoworkers) > turnsFromNow;
+                }
+                return true;
+            }
+            else
+            {
+                var spitter = nestA.Spiders.Concat(nestB.Spiders).Where(s => s is Spitter).Select(s => s as Spitter).FirstOrDefault(s => s.SpittingWebToNest == nestA || s.SpittingWebToNest == nestB);
+                if (spitter != null)
+                {
+                    return spitter.WorkRemaining / Math.Sqrt(spitter.NumberOfCoworkers) <= turnsFromNow;
+                }
+                return false;
+            }
+        }
+
+        public static void Assault(IEnumerable<Spiderling> lings, int count)
+        {
+            Smarts.Refresh();
+            var goal = Smarts.Game.CurrentPlayer.OtherPlayer.BroodMother.Nest;
+            var assaults = lings
+                .Where(l => l.WorkRemaining == 0)
+                .Select(l =>
+                {
+                    var path = CalcPath(l.ToPoint(), p => goal.ToPoint().Equals(p));
+                    return new { Ling = l, Path = path.Item1, TurnCount = path.Item2 };
+                })
+                .Where(c => c.TurnCount > 0)
+                .OrderBy(c => c.TurnCount)
+                .Take(count);
+
+            foreach(var assault in assaults)
+            {
+                //Console.WriteLine(assault.Ling.ToPoint());
+                //assault.Path.ForEach(p => Console.Write("{0}->", p));
+                //Console.WriteLine();
+                var target = assault.Path.Nth(1);
+                var web = Smarts.Webs[Tuple.Create(assault.Ling.ToPoint(), target)];
+                if (web.Load < web.Strength)
+                {
+                    assault.Ling.Move(web);
+                }
+            }
+        }
     }
 }

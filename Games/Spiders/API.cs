@@ -286,10 +286,6 @@ namespace Joueur.cs.Games.Spiders
 
         public static void Execute(XAction action)
         {
-            if (Game.CurrentPlayer.TimeRemaining < 1000000000)
-            {
-                throw new Exception("ACK");
-            }
             var player = Game.CurrentPlayer;
             switch(action.Type)
             {

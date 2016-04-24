@@ -94,7 +94,7 @@ namespace Joueur.cs.Games.Spiders
 
                 var state = API.State;
                 var broodMother = state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
-                for (int i = 0; i < Math.Min(broodMother.Eggs, 5); i++)
+                for (int i = 0; i < Math.Min(broodMother.Eggs, 10); i++)
                 {
                     API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
                 }
@@ -102,6 +102,7 @@ namespace Joueur.cs.Games.Spiders
                 Smarts.Refresh();
 
                 Solver.Attack(Smarts.OurSpiderlings);
+                Solver.Assault(Smarts.OurSpiderlings, 2);
                 Solver.SpreadSpiderlings(Game.CurrentPlayer.Spiders.Where(s => s is Spitter).Select(s => s as Spitter));
                 Solver.Attack(Smarts.OurSpiderlings, true);
             }
