@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Joueur.cs.Games.Spiders
 {
-    public class AStar<T>
+    class AStar<T>
     {
         public LinkedList<T> Path;
         public HashSet<T> Closed;

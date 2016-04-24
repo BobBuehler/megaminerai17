@@ -42,7 +42,6 @@ namespace Joueur.cs.Games.Spiders
         {
             state.Spiders.Remove(spider.Key);
             RemoveSpider(state.Players.Values.SelectMany(p => new [] {p.Cutters, p.Spitters, p.Weavers}), spider.Key);
-            RemoveSpider(state.Spiders.Values.Select(s => s.Coworkers), spider.Key);
             RemoveSpider(state.Nests.Values.Select(n => n.Spiders), spider.Key);
             RemoveSpider(state.Webs.Values.Select(w => w.Spiders), spider.Key);
         }
@@ -124,7 +123,7 @@ namespace Joueur.cs.Games.Spiders
 
             var coworkers = API.calcCoworkers(state, cutter, API.isCoCutter);
 
-            cutter.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            cutter.NumberOfCoworkers = coworkers.Count;
             if(coworkers.Count == 1)
             {
                 cutter.WorkRemaining = API.cutWorkRemaining(target.Strength, target.Length);
@@ -133,7 +132,7 @@ namespace Joueur.cs.Games.Spiders
             {
                 var otherWorkers = coworkers.Where(c => c.Key != cutter.Key);
                 cutter.WorkRemaining = otherWorkers.First().WorkRemaining;
-                otherWorkers.ForEach(c => c.Coworkers.Add(cutter.Key));
+                otherWorkers.ForEach(c => c.NumberOfCoworkers++);
             }
         }
 
@@ -143,7 +142,7 @@ namespace Joueur.cs.Games.Spiders
 
             var coworkers = API.calcCoworkers(state, spitter, API.isCoSpitter);
 
-            spitter.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            spitter.NumberOfCoworkers = coworkers.Count;
             if (coworkers.Count == 1)
             {
                 spitter.WorkRemaining = API.spitWorkRemaining(state.Nests[spitter.Nest].Location.EDist(target.Location));
@@ -152,7 +151,7 @@ namespace Joueur.cs.Games.Spiders
             {
                 var otherWorkers = coworkers.Where(c => c.Key != spitter.Key);
                 spitter.WorkRemaining = otherWorkers.First().WorkRemaining;
-                otherWorkers.ForEach(c => c.Coworkers.Add(spitter.Key));
+                otherWorkers.ForEach(c => c.NumberOfCoworkers++);
             }
         }
 
@@ -162,7 +161,7 @@ namespace Joueur.cs.Games.Spiders
 
             var coworkers = API.calcCoworkers(state, weaver, API.isCoStrengthener);
 
-            weaver.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            weaver.NumberOfCoworkers = coworkers.Count;
             if (coworkers.Count == 1)
             {
                 weaver.WorkRemaining = API.weaveWorkRemaining(target.Strength, target.Length);
@@ -171,7 +170,7 @@ namespace Joueur.cs.Games.Spiders
             {
                 var otherWorkers = coworkers.Where(c => c.Key != weaver.Key);
                 weaver.WorkRemaining = otherWorkers.First().WorkRemaining;
-                otherWorkers.ForEach(c => c.Coworkers.Add(weaver.Key));
+                otherWorkers.ForEach(c => c.NumberOfCoworkers++);
             }
         }
 
@@ -181,7 +180,7 @@ namespace Joueur.cs.Games.Spiders
 
             var coworkers = API.calcCoworkers(state, weaver, API.isCoWeakener);
 
-            weaver.Coworkers = coworkers.Select(c => c.Key).ToHashSet();
+            weaver.NumberOfCoworkers = coworkers.Count;
             if (coworkers.Count == 1)
             {
                 weaver.WorkRemaining = API.weaveWorkRemaining(target.Strength, target.Length);
@@ -190,7 +189,7 @@ namespace Joueur.cs.Games.Spiders
             {
                 var otherWorkers = coworkers.Where(c => c.Key != weaver.Key);
                 weaver.WorkRemaining = otherWorkers.First().WorkRemaining;
-                otherWorkers.ForEach(c => c.Coworkers.Add(weaver.Key));
+                otherWorkers.ForEach(c => c.NumberOfCoworkers++);
             }
         }
 
@@ -238,25 +237,25 @@ namespace Joueur.cs.Games.Spiders
 
         public static void ProgressSpitters(XState state, IEnumerable<XSpider> spitters)
         {
-            var clusters = DistinctSets(spitters.Select(s => s.Coworkers));
-            clusters.ForEach(c => ProgressSpitterCluster(state, c.Select(k => state.Spiders[k])));
+            //var clusters = DistinctSets(spitters.Select(s => s.Coworkers));
+            //clusters.ForEach(c => ProgressSpitterCluster(state, c.Select(k => state.Spiders[k])));
         }
 
         public static void ProgressSpitterCluster(XState state, IEnumerable<XSpider> spitters)
         {
-            var workDone = API.workMultiplier(spitters.Count());
-            var workRemaining = spitters.First().WorkRemaining - workDone;
-            if (workRemaining > 0)
-            {
-                spitters.ForEach(s => s.WorkRemaining = workRemaining);
-            }
-            else
-            {
-                var spitter = spitters.First();
-                AddWeb(state, spitter.Nest, spitter.SpittingToNest);
+            //var workDone = API.workMultiplier(spitters.Count());
+            //var workRemaining = spitters.First().WorkRemaining - workDone;
+            //if (workRemaining > 0)
+            //{
+            //    spitters.ForEach(s => s.WorkRemaining = workRemaining);
+            //}
+            //else
+            //{
+            //    var spitter = spitters.First();
+            //    AddWeb(state, spitter.Nest, spitter.SpittingToNest);
 
-                spitters.ForEach(s => { s.Coworkers.Clear(); s.WorkRemaining = 0; });
-            }
+            //    spitters.ForEach(s => { s.Coworkers.Clear(); s.WorkRemaining = 0; });
+            //}
         }
 
         public static void ProgressCutters(XState state, IEnumerable<XSpider> cutters)

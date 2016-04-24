@@ -84,24 +84,32 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>Represents if you want to end your turn. True means end your turn, False means to keep your turn going and re-call this function.</returns>
         public bool RunTurn()
         {
-            // Spawn
-            API.Refresh();
-
-            var state = API.State;
-            var broodMother = state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
-            for (int i = 0; i < broodMother.Eggs; i++)
+            try
             {
-                API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
+                Console.WriteLine(Game.CurrentTurn);
+
+                // Spawn
+                API.Refresh();
+
+                var state = API.State;
+                var broodMother = state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
+                for (int i = 0; i < broodMother.Eggs; i++)
+                {
+                    API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
+                }
+
+                // Mobilize
+                API.Refresh();
+
+                var wantedWebs = Solver.getWantedWebs(state);
+                var actions = Solver.mobilizeSpitters(state, wantedWebs);
+
+                actions.ForEach(API.Execute);
             }
-
-            // Mobilize
-            API.Refresh();
-
-            var wantedWebs = Solver.getWantedWebs(state);
-            var actions = Solver.mobilizeSpitters(state, wantedWebs);
-            actions.ForEach(API.Execute);
-
-            return true; // to signify you are done with your turn
+            catch (Exception e)
+            {
+            }
+            return true;
         }
 
         #endregion

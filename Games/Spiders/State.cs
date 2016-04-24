@@ -76,7 +76,7 @@ namespace Joueur.cs.Games.Spiders
         public int Health;
 
         // Spiderling
-        public HashSet<int> Coworkers;
+        public int NumberOfCoworkers;
         public int MovingOnWeb;
         public int MovingToNest;
         public double WorkRemaining;
@@ -101,7 +101,7 @@ namespace Joueur.cs.Games.Spiders
             Eggs = -1;
             Health = -1;
 
-            Coworkers = new HashSet<int>();
+            NumberOfCoworkers = 0;
             MovingOnWeb = -1;
             MovingToNest = -1;
             WorkRemaining = -1;
@@ -121,7 +121,7 @@ namespace Joueur.cs.Games.Spiders
             else
             {
                 var ling = obj as Spiderling;
-                Coworkers = ling.Coworkers.Select(s => s.GetKey()).ToHashSet();
+                NumberOfCoworkers = ling.NumberOfCoworkers;
                 MovingOnWeb = ling.MovingOnWeb.GetKey();
                 MovingToNest = ling.MovingToNest.GetKey();
                 WorkRemaining = ling.WorkRemaining;
@@ -153,7 +153,7 @@ namespace Joueur.cs.Games.Spiders
             Owner = copy.Owner;
             Eggs = copy.Eggs;
             Health = copy.Health;
-            Coworkers = new HashSet<int>(copy.Coworkers);
+            NumberOfCoworkers = copy.NumberOfCoworkers;
             MovingOnWeb = copy.MovingOnWeb;
             MovingToNest = copy.MovingToNest;
             CuttingWeb = copy.CuttingWeb;
@@ -172,7 +172,7 @@ namespace Joueur.cs.Games.Spiders
             Eggs = -1;
             Health = -1;
 
-            Coworkers = new HashSet<int>();
+            NumberOfCoworkers = 0;
             MovingOnWeb = -1;
             MovingToNest = -1;
             WorkRemaining = -1;
