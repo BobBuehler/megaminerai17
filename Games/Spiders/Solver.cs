@@ -327,7 +327,7 @@ namespace Joueur.cs.Games.Spiders
                     }
                     else
                     {
-                        if (web.Load < web.Strength)
+                        if (web.Load < Math.Min(2, web.Strength))
                         {
                             ling.Move(web);
                             break;
@@ -377,7 +377,7 @@ namespace Joueur.cs.Games.Spiders
             if (Smarts.Webs.TryGetValue(Tuple.Create(start, end), out web))
             {
                 var futureLoad = web.Spiderlings.Count(s => s.WorkRemaining > turnsFromNow);
-                if (futureLoad == web.Strength)
+                if (futureLoad >= Math.Min(2, web.Strength))
                 {
                     return false;
                 }
