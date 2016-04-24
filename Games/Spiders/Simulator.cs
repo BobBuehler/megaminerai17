@@ -37,15 +37,44 @@ namespace Joueur.cs.Games.Spiders
 
         public static void RemoveSpider(XState state, XSpider spider)
         {
+            state.Spiders.Remove(spider.Key);
+            RemoveSpider(state.Players.Values.SelectMany(p => new [] {p.Cutters, p.Spitters, p.Weavers}), spider.Key);
+            RemoveSpider(state.Spiders.Values.Select(s => s.Coworkers), spider.Key);
+            RemoveSpider(state.Nests.Values.Select(n => n.Spiders), spider.Key);
+            RemoveSpider(state.Webs.Values.Select(w => w.Spiders), spider.Key);
+        }
 
+        public static void RemoveSpider(IEnumerable<HashSet<int>> refs, int spiderKey)
+        {
+            refs.ForEach(r => r.Remove(spiderKey));
         }
 
         public static void AddSpider(XState state, XSpider broodMother, XSpiderType type)
         {
-            // Create XSpider with correct Type and Owner
-            // Add to State
-            // Add to Player
-            // Add to Nest
+            AddSpider(state, new XSpider(type, broodMother.Nest, broodMother.Owner));
+        }
+
+        public static void AddSpider(XState state, XSpider spider)
+        {
+            state.Spiders.Add(spider.Key, spider);
+            AddSpider(state.Players[spider.Owner], spider);
+            state.Nests[spider.Nest].Spiders.Add(spider.Key);
+        }
+
+        public static void AddSpider(XPlayer player, XSpider spider)
+        {
+            switch(spider.Type)
+            {
+                case XSpiderType.Cutter:
+                    player.Cutters.Add(spider.Key);
+                    break;
+                case XSpiderType.Spitter:
+                    player.Spitters.Add(spider.Key);
+                    break;
+                case XSpiderType.Weaver:
+                    player.Weavers.Add(spider.Key);
+                    break;
+            }
         }
 
         public static void AttackSpider(XState state, XSpider attacker, XSpider target)
@@ -117,26 +146,69 @@ namespace Joueur.cs.Games.Spiders
 
         }
 
+        public static void AddWeb(XState state, int nestA, int nestB)
+        {
+            var length = state.Nests[nestA].Location.EDist(state.Nests[nestB].Location);
+            AddWeb(state, new XWeb(length, nestA, nestB, API.initialWebStrength()));
+        }
+
+        public static void AddWeb(XState state, XWeb web)
+        {
+            state.Webs[web.Key] = web;
+            state.Nests[web.NestA].Webs.Add(web.Key);
+            state.Nests[web.NestB].Webs.Add(web.Key);
+        }
+
         public static void NextTurn(XState state)
         {
             var player = state.Players.Values.First(p => p.Key != state.CurrentPlayer);
 
-            //ProgressSpitters(state, state.Spiders.Where(s => s.);
-            //ProgressCutters(state, player.Cutters);
-            //ProgressWeavers(state, player.Weavers);
+            ProgressSpitters(state, state.Spiders.Values.Where(s => s.Type == XSpiderType.Spitter));
+            ProgressCutters(state, state.Spiders.Values.Where(s => s.Type == XSpiderType.Cutter));
+            ProgressWeavers(state, state.Spiders.Values.Where(s => s.Type == XSpiderType.Weaver));
 
             ProgressMoves(state, player.Spitters.Concat(player.Cutters).Concat(player.Weavers));
-            ProgressBroodMotherHealth(state, player.BroodMother);
+            // 2x this ProgressBroodMotherHealth(state, player.BroodMother);
             ProgressBroodMotherEggs(state, player.BroodMother);
 
             state.CurrentPlayer = player.Key;
             state.CurrentTurn++;
         }
 
+        public static IEnumerable<HashSet<int>> DistinctSets(IEnumerable<HashSet<int>> sets)
+        {
+            var seen = new HashSet<int>();
+            foreach (var set in sets.Where(s => s.Count > 0))
+            {
+                if (set.All(c => !seen.Contains(c)))
+                {
+                    set.ForEach(c => seen.Add(c));
+                    yield return set;
+                }
+            }
+        }
+
         public static void ProgressSpitters(XState state, IEnumerable<XSpider> spitters)
         {
-            // Cluster into coworker sets
-            // Progress coworkers
+            var clusters = DistinctSets(spitters.Select(s => s.Coworkers));
+            clusters.ForEach(c => ProgressSpitterCluster(state, c.Select(k => state.Spiders[k])));
+        }
+
+        public static void ProgressSpitterCluster(XState state, IEnumerable<XSpider> spitters)
+        {
+            var workDone = API.workMultiplier(spitters.Count());
+            var workRemaining = spitters.First().WorkRemaining - workDone;
+            if (workRemaining > 0)
+            {
+                spitters.ForEach(s => s.WorkRemaining = workRemaining);
+            }
+            else
+            {
+                var spitter = spitters.First();
+                AddWeb(state, spitter.Nest, spitter.SpittingToNest);
+
+                spitters.ForEach(s => { s.Coworkers.Clear(); s.WorkRemaining = 0; });
+            }
         }
 
         public static void ProgressCutters(XState state, IEnumerable<XSpider> cutters)

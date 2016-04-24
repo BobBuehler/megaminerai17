@@ -27,6 +27,11 @@ namespace Joueur.cs.Games.Spiders
             Key = copy.Key;
         }
 
+        public XBase()
+        {
+            Key = API.GetKey();
+        }
+
         public override int GetHashCode()
         {
             return Key;
@@ -156,6 +161,27 @@ namespace Joueur.cs.Games.Spiders
             StrengtheningWeb = copy.StrengtheningWeb;
             WeakeningWeb = copy.WeakeningWeb;
         }
+
+        public XSpider(XSpiderType type, int nest, int owner)
+            : base()
+        {
+            Type = type;
+            Nest = nest;
+            Owner = owner;
+
+            Eggs = -1;
+            Health = -1;
+
+            Coworkers = new HashSet<int>();
+            MovingOnWeb = -1;
+            MovingToNest = -1;
+            WorkRemaining = -1;
+
+            CuttingWeb = -1;
+            SpittingToNest = -1;
+            StrengtheningWeb = -1;
+            WeakeningWeb = -1;
+        }
     }
 
     class XNest : XBase
@@ -210,6 +236,17 @@ namespace Joueur.cs.Games.Spiders
             NestB = obj.NestB.GetKey();
             Spiders = obj.Spiderlings.Select(s => s.GetKey()).ToHashSet();
             Strength = obj.Strength;
+        }
+
+        public XWeb(double length, int nestA, int nestB, int strength)
+            : base()
+        {
+            Length = length;
+            Load = 0;
+            NestA = nestA;
+            NestB = nestB;
+            Spiders = new HashSet<int>();
+            Strength = strength;
         }
     }
 

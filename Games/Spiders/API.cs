@@ -62,6 +62,11 @@ namespace Joueur.cs.Games.Spiders
             return Math.Sqrt(numWorkers);
         }
 
+        public static int initialWebStrength()
+        {
+            return Game.InitialWebStrength;
+        }
+
         private static IDictionary<string, int> idToKey;
         private static IDictionary<int, string> keyToId;
 
@@ -75,6 +80,11 @@ namespace Joueur.cs.Games.Spiders
                 keyToId[key] = id;
             }
             return key;
+        }
+
+        public static int GetKey()
+        {
+            return GetKey("SIM-" + idToKey.Count);
         }
 
         public static string GetId(int key)
