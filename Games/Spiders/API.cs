@@ -20,7 +20,7 @@ namespace Joueur.cs.Games.Spiders
             keyToId = new Dictionary<int, string>();
         }
 
-        public void Refresh()
+        public static void Refresh()
         {
             Players = Game.Players.ToDictionary(p => p.Id);
             Spiders = Game.Players.SelectMany(p => p.Spiders).ToDictionary(s => s.Id);
@@ -28,10 +28,10 @@ namespace Joueur.cs.Games.Spiders
             Webs = Game.Webs.ToDictionary(w => w.Id);
         }
 
-        public IDictionary<string, Player> Players;
-        public IDictionary<string, Spider> Spiders;
-        public IDictionary<string, Nest> Nests;
-        public IDictionary<string, Web> Webs;
+        public static IDictionary<string, Player> Players;
+        public static IDictionary<string, Spider> Spiders;
+        public static IDictionary<string, Nest> Nests;
+        public static IDictionary<string, Web> Webs;
 
 
         private static double _edist(Point d)
