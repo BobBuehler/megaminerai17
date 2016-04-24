@@ -157,15 +157,21 @@ namespace Joueur.cs.Games.Spiders
         //Doesnt check for owner.. or nest...
         public static bool canAttackKind(XSpider attacker, XSpider attackee)
         {
-            if (attacker.Type == XSpiderType.Cutter && attackee.Type == XSpiderType.Weaver)
+            return canAttackKind(attacker.Type, attackee.Type);
+        }
+
+        //Doesnt check for owner.. or nest...
+        public static bool canAttackKind(XSpiderType attacker, XSpiderType attackee)
+        {
+            if (attacker == XSpiderType.Cutter && attackee == XSpiderType.Weaver)
             {
                 return false;
             }
-            if (attacker.Type == XSpiderType.Spitter && attackee.Type == XSpiderType.Cutter)
+            if (attacker == XSpiderType.Spitter && attackee == XSpiderType.Cutter)
             {
                 return false;
             }
-            if (attacker.Type == XSpiderType.Weaver && attackee.Type == XSpiderType.Spitter)
+            if (attacker == XSpiderType.Weaver && attackee == XSpiderType.Spitter)
             {
                 return false;
             }

@@ -181,5 +181,23 @@ namespace Joueur.cs.Games.Spiders
                 }
             }
         }
+
+        public static void Attack(IEnumerable<Spiderling> lings, bool suicideOk = false)
+        {
+            foreach(var ling in lings.Where(l => l.WorkRemaining == 0))
+            {
+                foreach(var target in ling.Nest.Spiders.Where(s => s.Owner != ling.Owner))
+                {
+                    if (API.canAttackKind(ling.GetXSpiderType(), target.GetXSpiderType()))
+                    {
+                        if (suicideOk || ling.GetXSpiderType() != target.GetXSpiderType())
+                        {
+                            ling.Attack(target as Spiderling);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 }

@@ -99,8 +99,11 @@ namespace Joueur.cs.Games.Spiders
                     API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
                 }
 
+                Smarts.Refresh();
 
+                Solver.Attack(Smarts.OurSpiderlings);
                 Solver.SpreadSpiderlings(Game.CurrentPlayer.Spiders.Where(s => s is Spitter).Select(s => s as Spitter));
+                Solver.Attack(Smarts.OurSpiderlings, true);
             }
             catch (Exception e)
             {
