@@ -322,5 +322,10 @@ namespace Joueur.cs.Games.Spiders
             return web.ToPoints().Item1.EDist(web.ToPoints().Item2);
         }
 
+        public static IEnumerable<Nest> getNumCloseNests(Nest nest, int numNests)
+        {
+            return Smarts.Nests.Values.OrderBy( n => n.ToPoint().EDist(nest.ToPoint() )).Take(numNests);
+        }
+
     }
 }

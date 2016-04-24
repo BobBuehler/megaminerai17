@@ -194,18 +194,6 @@ namespace Joueur.cs.Games.Spiders
 
         }
 
-        public static void SpreadCutters()
-        {
-            Smarts.Refresh();
-            var ourCutters = Smarts.Game.CurrentPlayer.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Cutter).Select(s => s as Cutter).ToArray();
-            var idleCutters = ourCutters.Where(s => s.WorkRemaining == 0);
-            var nestsWithCutters = ourCutters.Select(s => s.MovingToNest != null ? s.MovingToNest : s.Nest).Select(n => n.ToPoint()).ToHashSet();
-            
-            var broodMotherNest = Smarts.Game.CurrentPlayer.BroodMother.Nest;
-            SpreadCuttersNest(broodMotherNest);
-
-        }
-
         public static IEnumerable<Spider> cuttersCutWithSuicide(IEnumerable<Spider> cutters, IEnumerable<Web> targetWebs)
         {
             var unusedCutters = cutters;
@@ -217,32 +205,29 @@ namespace Joueur.cs.Games.Spiders
                 actPairs[w] = unusedCutters.Take(numCutters);
                 unusedCutters = unusedCutters.Skip(numCutters);
             };
+
             foreach(var web in targetWebs)
             {
                 var webLength = API.webLength(web);
-                Console.WriteLine("TargetWebs - " + web);
-                if (webLength <= 20)
+                if (webLength < 41)
                 {
                     var numSuiciders = web.Strength - web.Load + 1;
                     assignCutters(web, numSuiciders, suicidePairs);
                 }
                 else
                 {
-                    var numCutters = (webLength < 30 ? 2 : 1);
+                    var numCutters = (int)Math.Ceiling(Math.Pow((62.5/Math.Sqrt(webLength)) / (API.movementTime(webLength) - 1), 2));
                     assignCutters(web, numCutters, cutPairs);
                 }
             }
 
-            Console.WriteLine("Attempt foreach cut");
             foreach(var entry in suicidePairs)
             {
-                Console.WriteLine("Suicicdepairs - " + entry);
                 entry.Value.Select(spi => (Cutter)spi).ForEach(cutter => cutter.Move(entry.Key));
             }
 
             foreach (var entry in cutPairs)
             {
-                Console.WriteLine("Cutpairs - " + entry);
                 entry.Value.Select(spi => (Cutter)spi).ForEach(cutter => cutter.Cut(entry.Key));
             }
 
@@ -276,27 +261,33 @@ namespace Joueur.cs.Games.Spiders
             return unusedCutters;
         }
 
-        public static IEnumerable<Spider> SpreadCuttersNest(Nest nest)
+        public static void SpreadCuttersNest(Nest nest)
         {
-            var closeEnemySpiders = API.getEnemySpidersNearNest(nest, 20);
-            var closeEnemyNests = closeEnemySpiders.Select(spi => spi.Nest).ToHashSet();
+            var idleCutters = nest.Spiders.Where(spi => Smarts.Game.CurrentPlayer == spi.Owner).Where(spi => spi is Cutter).Select(spi => (Cutter)spi).Where(s => s.WorkRemaining == 0);
 
-            var bm = Smarts.Game.CurrentPlayer.BroodMother;
-            var nestQuota = (bm.Nest == nest ? 10 : 0) + 5 * closeEnemyNests.Count();
-
-            var idleCutters = nest.Spiders.Where(spi => Smarts.Game.CurrentPlayer == spi.Owner).Where(spi => spi != bm).Select(spi => (Spiderling)spi).Where(s => s.WorkRemaining == 0);
-            var quoteSpiders = idleCutters.Where(spider => spider.Nest == nest).Take(nestQuota);
-            var unquoteSpiders = idleCutters.Where(spi => !quoteSpiders.Contains(spi));
-
-            var enemyWebs = Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == nest).Where(spi => nest == spi.MovingToNest).Select(spi => spi.MovingOnWeb).OrderBy(API.webLength).Distinct();
-            Console.WriteLine("EnemyWebs - " + (enemyWebs.Any() ? enemyWebs.First() : null ));
+            var enemyWebs = Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == nest).Select(spi => spi.MovingOnWeb).OrderBy(API.webLength).Distinct().Reverse();
             var unusedCutters = cuttersCutWithSuicide(idleCutters, enemyWebs);
 
             //var targetWebs = Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == null).Where(spi => spi.Nest.Webs.Any(web => (web.NestA == nest || web.NestB == nest)))
             //    .Select(spi => Smarts.Webs[Tuple.Create(nest.ToPoint(), spi.MovingToNest.ToPoint())]).ToHashSet();
             //unusedCutters = cuttersCut(unusedCutters, targetWebs);
+        }
 
-            return unquoteSpiders;
+        public static void SpreadCutters()
+        {
+            Smarts.Refresh();
+            var ourCutters = Smarts.Game.CurrentPlayer.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Cutter).Select(s => s as Cutter).ToArray();
+            var idleCutters = ourCutters.Where(s => s.WorkRemaining == 0);
+            var nestsWithCutters = ourCutters.Select(s => s.MovingToNest != null ? s.MovingToNest : s.Nest).Select(n => n.ToPoint()).ToHashSet();
+
+            var broodMotherNest = Smarts.Game.CurrentPlayer.BroodMother.Nest;
+            
+            SpreadCuttersNest(broodMotherNest);
+            foreach (var node in API.getNumCloseNests(broodMotherNest, 3))
+            {
+                SpreadCuttersNest(node);
+            }
+
         }
 
         public static void SpreadSpiderlings(IEnumerable<Spiderling> lings)
