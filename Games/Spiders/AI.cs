@@ -93,7 +93,7 @@ namespace Joueur.cs.Games.Spiders
 
                 var state = API.State;
                 var broodMother = state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
-                for (int i = 0; i < broodMother.Eggs; i++)
+                for (int i = 0; i < Math.Min(broodMother.Eggs, 5); i++)
                 {
                     API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
                 }
@@ -108,6 +108,10 @@ namespace Joueur.cs.Games.Spiders
             }
             catch (Exception e)
             {
+                if (e.Message != "ACK")
+                {
+                    Console.WriteLine(e);
+                }
             }
             return true;
         }

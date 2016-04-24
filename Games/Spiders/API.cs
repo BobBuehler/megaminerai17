@@ -253,6 +253,11 @@ namespace Joueur.cs.Games.Spiders
             return (T)Spiders[GetId(key)];
         }
 
+        public static XWeb GetWeb(XState state, XNest nest1, XNest nest2)
+        {
+            return nest1.Webs.Select(w => state.Webs[w]).FirstOrDefault(w => getNextNest(state, nest1, w).Equals(nest2));
+        }
+
         public static Web GetWeb(XWeb web)
         {
             return GetWeb(web.Key);
@@ -275,7 +280,7 @@ namespace Joueur.cs.Games.Spiders
 
         public static void Execute(XAction action)
         {
-            if (Game.CurrentPlayer.TimeRemaining < 10000000000)
+            if (Game.CurrentPlayer.TimeRemaining < 1000000000)
             {
                 throw new Exception("ACK");
             }

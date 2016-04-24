@@ -253,6 +253,7 @@ namespace Joueur.cs.Games.Spiders
     class XState
     {
         public int CurrentPlayer;
+        public int OtherPlayer;
         public int CurrentTurn;
         public IDictionary<int, XPlayer> Players;
         public IDictionary<int, XSpider> Spiders;
@@ -262,6 +263,7 @@ namespace Joueur.cs.Games.Spiders
         public XState(Game game)
         {
             CurrentPlayer = game.CurrentPlayer.GetKey();
+            OtherPlayer = game.CurrentPlayer.OtherPlayer.GetKey();
             CurrentTurn = game.CurrentTurn;
             Players = game.Players.Select(p => new XPlayer(p)).ToDictionary(p => p.Key);
             Spiders = game.Players.SelectMany(p => p.Spiders).Select(s => new XSpider(s)).ToDictionary(s => s.Key);
@@ -272,6 +274,7 @@ namespace Joueur.cs.Games.Spiders
         public XState(XState copy)
         {
             CurrentPlayer = copy.CurrentPlayer;
+            CurrentPlayer = copy.OtherPlayer;
             CurrentTurn = copy.CurrentTurn;
             Players = copy.Players.ToDictionary(kvp => kvp.Key, kvp => new XPlayer(kvp.Value));
             Spiders = copy.Spiders.ToDictionary(kvp => kvp.Key, kvp => new XSpider(kvp.Value));

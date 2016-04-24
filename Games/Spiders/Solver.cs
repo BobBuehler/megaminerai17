@@ -72,25 +72,16 @@ namespace Joueur.cs.Games.Spiders
 
         public static IEnumerable<Tuple<int, int>> getWantedWebs(XState state)
         {
-            var player = state.Players[state.CurrentPlayer];
+            var player = state.Players[state.OtherPlayer];
             var broodMother = state.Spiders[player.BroodMother];
-            var broodNest = state.Nests[broodMother.Nest];
 
-            var search = new AStar<XNest>
-                (
-                    broodNest.Single(),
-                    n => false,
-                    (n1, n2) => API.movementTime(n1.Location.EDist(n2.Location)),
-                    n => 0,
-                    n1 => state.Nests.Values.Where(n2 => API.movementTime(n1.Location.EDist(n2.Location)) % 2 == 1)
-                );
-
-            return search.From.Select(kvp => Tuple.Create(kvp.Value.Key, kvp.Key.Key));
+            var nestsByPoints = state.Nests.Values.Where(n => n.Key != broodMother.Nest).ToDictionary(n => n.Location);
+            return MST(nestsByPoints.Keys).Select(t => Tuple.Create(nestsByPoints[t.Item1].Key, nestsByPoints[t.Item2].Key));
         }
 
         public static IEnumerable<XAction> mobilizeSpitters(XState state, IEnumerable<Tuple<int, int>> wantedWebs)
         {
-            var existingWebs = state.Webs.Values.Select(w => Tuple.Create(w.NestA, w.NestB)).ToHashSet();
+            var existingWebs = state.Webs.Values.SelectMany(w => new [] {Tuple.Create(w.NestA, w.NestB), Tuple.Create(w.NestB, w.NestA)}).ToHashSet();
             var websThatDontExist = wantedWebs.Where(t => !existingWebs.Contains(Tuple.Create(t.Item1, t.Item2)));
             var idleSpitters = state.Players[state.CurrentPlayer].Spitters
                 .Select(s => state.Spiders[s])
@@ -116,7 +107,14 @@ namespace Joueur.cs.Games.Spiders
                             n => 0,
                             n => getConnectedNests(state, n)
                         );
-                    yield return new XAction(spitter, XActionType.Move) { TargetNest = search.Path.Nth(1) };
+                    Console.WriteLine(state.Nests[spitter.Nest].Location);
+                    search.From.ForEach(kvp => Console.WriteLine("{0}:{1}", kvp.Key.Location, kvp.Value.Location));
+                    search.Path.ForEach(n => Console.Write("{0}->", n.Location));
+                    Console.WriteLine();
+                    if (search.Path.Count > 1)
+                    {
+                        yield return new XAction(spitter, XActionType.Move) { TargetWeb = API.GetWeb(state, search.Path.Nth(0), search.Path.Nth(1)) };
+                    }
                 }
             }
         }
@@ -124,6 +122,22 @@ namespace Joueur.cs.Games.Spiders
         public static IEnumerable<XNest> getConnectedNests(XState state, XNest nest)
         {
             return nest.Webs.Select(w => API.getNextNest(state, nest, state.Webs[w]));
+        }
+
+        public static IEnumerable<Tuple<Point, Point>> MST(IEnumerable<Point> points)
+        {
+            var edges = points.SelectMany(p1 => points.Select(p2 => new { p1 = p1, p2 = p2, dist = p1.EDist(p2)}));
+            var closedSet = new HashSet<Point>();
+            foreach(var edge in edges.Where(e => !e.p1.Equals(e.p2)).OrderBy(e => e.dist))
+            {
+                if (!closedSet.Contains(edge.p1) || !closedSet.Contains(edge.p2))
+                {
+                    closedSet.Add(edge.p1);
+                    closedSet.Add(edge.p2);
+                    yield return Tuple.Create(edge.p1, edge.p2);
+                }
+            }
+
         }
     }
 }

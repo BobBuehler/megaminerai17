@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Joueur.cs.Games.Spiders
 {
-    public struct Point
+    struct Point
     {
         public int x;
         public int y;

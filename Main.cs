@@ -10,6 +10,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using System.Collections;
 using System.Reflection;
+using Joueur.cs.Games.Spiders;
 
 namespace Joueur.cs
 {
@@ -17,6 +18,12 @@ namespace Joueur.cs
     {
         static void Main(string[] args)
         {
+            if (args.Length == 0)
+            {
+                API.Init(null, null);
+                Solver.MST(new[] { new Point(0, 0), new Point(1, 1), new Point(2, 2), new Point(1, 2) }).ForEach(t => Console.WriteLine("{0}-{1}", t.Item1, t.Item2));
+                return;
+            }
             var argParser = new ArgParser(args, "Runs the C# client with options. Must a provide a game name to play on the server.", new ArgParser.Argument[] {
                 new ArgParser.Argument(new string[] {"game"}, "game", "the name of the game you want to play on the server", true),
                 new ArgParser.Argument(new string[] {"-s", "--server"}, "server", "the url to the server you want to connect to e.g. locahost:3000", false, "127.0.0.1"),

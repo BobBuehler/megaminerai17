@@ -7,7 +7,7 @@ using System.Text;
 namespace Joueur.cs.Games.Spiders
 {
     // http://www.siepman.nl/blog/post/2013/10/09/LazyList-A-better-LINQ-result-cache-than-List.aspx
-    public class LazyList<T> : IEnumerable<T>, IDisposable
+    class LazyList<T> : IEnumerable<T>, IDisposable
     {
         private readonly IList<T> _cache;
         private IEnumerator<T> _sourceEnumerator;
@@ -147,7 +147,7 @@ namespace Joueur.cs.Games.Spiders
         }
     }
 
-    public static class LazyListExtensions
+    static class LazyListExtensions
     {
         public static LazyList<T> ToLazyList<T>(this IEnumerable<T> source)
         {
