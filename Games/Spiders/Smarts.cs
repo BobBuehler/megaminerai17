@@ -51,5 +51,21 @@ namespace Joueur.cs.Games.Spiders
         {
             return Tuple.Create(tuple.Item2, tuple.Item1);
         }
+
+        public static Point ToPoint(this Spiderling spiderling)
+        {
+            if (spiderling.MovingToNest != null)
+            {
+                return spiderling.MovingToNest.ToPoint();
+            }
+            else if (spiderling is Spitter && (spiderling as Spitter).SpittingWebToNest != null)
+            {
+                return (spiderling as Spitter).SpittingWebToNest.ToPoint();
+            }
+            else
+            {
+                return spiderling.Nest.ToPoint();
+            }
+        }
     }
 }

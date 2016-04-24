@@ -15,7 +15,7 @@ namespace Joueur.cs
 
         protected T RunOnServer<T>(string functionName, IDictionary<string, object> args = null)
         {
-            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 1000000000)
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 300000000)
             {
                 throw new Exception("ACK");
             }

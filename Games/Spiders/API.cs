@@ -157,15 +157,21 @@ namespace Joueur.cs.Games.Spiders
         //Doesnt check for owner.. or nest...
         public static bool canAttackKind(XSpider attacker, XSpider attackee)
         {
-            if (attacker.Type == XSpiderType.Cutter && attackee.Type == XSpiderType.Weaver)
+            return canAttackKind(attacker.Type, attackee.Type);
+        }
+
+        //Doesnt check for owner.. or nest...
+        public static bool canAttackKind(XSpiderType attacker, XSpiderType attackee)
+        {
+            if (attacker == XSpiderType.Cutter && attackee == XSpiderType.Weaver)
             {
                 return false;
             }
-            if (attacker.Type == XSpiderType.Spitter && attackee.Type == XSpiderType.Cutter)
+            if (attacker == XSpiderType.Spitter && attackee == XSpiderType.Cutter)
             {
                 return false;
             }
-            if (attacker.Type == XSpiderType.Weaver && attackee.Type == XSpiderType.Spitter)
+            if (attacker == XSpiderType.Weaver && attackee == XSpiderType.Spitter)
             {
                 return false;
             }
@@ -280,10 +286,6 @@ namespace Joueur.cs.Games.Spiders
 
         public static void Execute(XAction action)
         {
-            if (Game.CurrentPlayer.TimeRemaining < 1000000000)
-            {
-                throw new Exception("ACK");
-            }
             var player = Game.CurrentPlayer;
             switch(action.Type)
             {
@@ -305,15 +307,20 @@ namespace Joueur.cs.Games.Spiders
             return state.Spiders.Values.Where( spi => spi.Owner != state.CurrentPlayer ).Where(spider => state.Nests[spider.Nest].Location.EDist( nest.Location ) <= radius );
         }
 
-        public static IEnumerable<XSpider> getEnemySpidersNearNest(Nest nest, double radius)
+        public static IEnumerable<Spiderling> getEnemySpidersNearNest(Nest nest, double radius)
         {
-            return Smarts.TheirSpiderlings.Where( spi => spi. );
-            //return state.Spiders.Values.Where(spi => spi.Owner != state.CurrentPlayer).Where(spider => state.Nests[spider.Nest].Location.EDist(nest.Location) <= radius);
+            return Smarts.TheirSpiderlings.Where(spi => spi.MovingToNest == null).Where(spi => spi.Nest.ToPoint().EDist(nest.ToPoint()) < radius);
         }
 
         public static XSpider getAllyBroodMother(XState state)
         {
             return state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
         }
+
+        public static double webLength(Web web)
+        {
+            return web.ToPoints().Item1.EDist(web.ToPoints().Item2);
+        }
+
     }
 }

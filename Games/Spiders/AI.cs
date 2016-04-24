@@ -94,20 +94,38 @@ namespace Joueur.cs.Games.Spiders
 
                 var state = API.State;
                 var broodMother = state.Spiders[state.Players[state.CurrentPlayer].BroodMother];
-                for (int i = 0; i < Math.Min(broodMother.Eggs, 5); i++)
+
+                //var unitCount = Smarts.OurSpiderlings.Where(spi => !spi.Equals(Smarts.Game.CurrentPlayer.BroodMother)).Count();
+                Smarts.Refresh();
+                var spitterCount = Smarts.OurSpiderlings.Where(spi => spi.GetXSpiderType() == XSpiderType.Spitter).Count();
+                var cutterCount = Smarts.OurSpiderlings.Where(spi => spi.GetXSpiderType() == XSpiderType.Cutter).Count();
+
+                for (int i = 0; i < Math.Min(broodMother.Eggs, 10); i++)
                 {
-                    API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
+                    if (spitterCount / 5 < cutterCount)
+                    {
+                        spitterCount++;
+                        API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
+                    }
+                    else
+                    {
+                        cutterCount++;
+                        API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Cutter });
+                    }
                 }
 
-                Solver.SpreadSpitters();
+                Smarts.Refresh();
+
+                Solver.Attack(Smarts.OurSpiderlings);
+                Solver.Assault(Smarts.OurSpiderlings, 2);
+                Solver.SpreadSpiderlings(Game.CurrentPlayer.Spiders.Where(s => s is Spitter).Select(s => s as Spitter));
                 Solver.SpreadCutters();
+                Solver.Attack(Smarts.OurSpiderlings, true);
             }
             catch (Exception e)
             {
-                if (e.Message != "ACK")
-                {
-                    Console.WriteLine(e);
-                }
+                Console.WriteLine(Game.CurrentPlayer.TimeRemaining);
+                Console.WriteLine(e);
             }
             return true;
         }
