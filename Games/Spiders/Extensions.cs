@@ -147,5 +147,25 @@ namespace Joueur.cs.Games.Spiders
             }
             return enumerator.Current;
         }
+
+        public static double EDist(this Nest nest1, Nest nest2)
+        {
+            return nest1.ToPoint().EDist(nest2.ToPoint());
+        }
+
+        public static V GetOrDefault<K, V>(this IDictionary<K, V> source, K key)
+        {
+            var v = default(V);
+            if (!source.TryGetValue(key, out v))
+            {
+                v = default(V);
+            }
+            return v;
+        }
+
+        public static IEnumerable<T> GetOwned<T>(this IEnumerable<Spider> source, Player owner) where T : Spider
+        {
+            return source.Where(s => s.Owner == owner && s is T).Select(s => s as T);
+        }
     }
 }
