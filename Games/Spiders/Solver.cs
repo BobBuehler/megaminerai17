@@ -330,9 +330,9 @@ namespace Joueur.cs.Games.Spiders
 
         public static void Attack(IEnumerable<Spiderling> lings, bool suicideOk = false)
         {
-            foreach(var ling in lings.Where(l => l.WorkRemaining == 0))
+            foreach (var ling in lings.Where(l => l.WorkRemaining == 0).ToArray())
             {
-                foreach(var target in ling.Nest.Spiders.Where(s => s.Owner != ling.Owner))
+                foreach(var target in ling.Nest.Spiders.Where(s => s.Owner != ling.Owner).ToArray())
                 {
                     if (API.canAttackKind(ling.GetXSpiderType(), target.GetXSpiderType()))
                     {

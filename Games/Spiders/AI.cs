@@ -87,7 +87,7 @@ namespace Joueur.cs.Games.Spiders
         {
             try
             {
-                Console.WriteLine(Game.CurrentTurn);
+                Console.WriteLine("{0} {1}-{2}", Game.CurrentTurn, Game.CurrentPlayer.BroodMother.Health, Game.CurrentPlayer.OtherPlayer.BroodMother.Health);
                 OtherRun();
                 return true;
 
@@ -165,7 +165,8 @@ namespace Joueur.cs.Games.Spiders
 
             Solver.Attack(Smarts.OurSpiderlings);
 
-            //CutWebs();
+            var idleHomeSpitters = Game.CurrentPlayer.BroodMother.Nest.Spiders.GetOwned<Spitter>(Game.CurrentPlayer);
+            SuicideWebs(idleHomeSpitters.Count() / 15);
 
             var ourNest = mother.Nest;
             var theirNest = Game.CurrentPlayer.OtherPlayer.BroodMother.Nest;
@@ -182,7 +183,7 @@ namespace Joueur.cs.Games.Spiders
                 else
                 {
                     MoveToQuota<Weaver>(ourNest, stop, incoming, 2);
-                    MoveToQuota<Spitter>(ourNest, stop, incoming, 1);
+                    MoveToQuota<Spitter>(ourNest, stop, incoming, 2);
                 }
 
                 if (outgoing == null)
@@ -230,12 +231,27 @@ namespace Joueur.cs.Games.Spiders
             }
         }
 
-        public void CutWebs()
+        public void SuicideWebs(int count)
         {
             var ourNest = Game.CurrentPlayer.BroodMother.Nest;
-            foreach(var web in ourNest.Webs)
+
+            foreach(var web in ourNest.Webs.OrderByDescending(w => w.Spiderlings.Count(s => s.Owner != Game.CurrentPlayer)))
             {
-                API.cutWorkRemaining(web.Strength, web.Length);
+                if (web.Spiderlings.Count(s => s.Owner != Game.CurrentPlayer) > 1)
+                {
+                    var idleHomeSpitters = ourNest.Spiders.GetOwned<Spitter>(Game.CurrentPlayer).Where(s => s.WorkRemaining == 0).ToArray();
+                    var spidersToKill = web.Strength - web.Load + 1;
+                    if (idleHomeSpitters.Count() > spidersToKill)
+                    {
+                        idleHomeSpitters.Take(spidersToKill).ForEach(s => s.Move(web));
+                        
+                        count--;
+                        if (count == 0)
+                        {
+                            return;
+                        }
+                    }
+                }
             }
         }
 
