@@ -9,7 +9,7 @@ namespace Joueur.cs.Games.Spiders
     {
         public static void Act(XState state, XAction action)
         {
-            switch(action.Type)
+            switch (action.Type)
             {
                 case XActionType.Consume:
                     RemoveSpider(state, action.TargetSpider);
@@ -50,12 +50,40 @@ namespace Joueur.cs.Games.Spiders
 
         public static void AttackSpider(XState state, XSpider attacker, XSpider target)
         {
-
+            if (attacker.Type == target.Type)
+            {
+                // Kill both
+                RemoveSpider(state, attacker);
+                RemoveSpider(state, target);
+            }
+            else if (API.canAttackKind(attacker, target))
+            {
+                // Kill target
+                RemoveSpider(state, target);
+            }
+            else
+            {
+                // Kill attacker
+                RemoveSpider(state, attacker);
+            }
         }
 
         public static void MoveSpider(XState state, XSpider mover, XWeb target)
         {
-            // Update references
+            // Remove this XSpider from its XNest (don't need to do anything with Coworkers)
+            state.Nests[mover.Nest].Spiders.Remove(mover.Key);
+
+            // Put this XSpider on the target XWeb
+            mover.MovingOnWeb = target.Key;
+
+            // Point this XSpider at the target XNest
+            mover.MovingToNest = API.getNextNest(state, state.Nests[mover.Nest], target).Key;
+            
+            // Update this XSpider's movement time
+            mover.WorkRemaining = API.movementTime(target.Length);
+
+            // Delete this XSpider's reference to its XNest
+            mover.Nest = -1;
         }
 
         public static void CutWeb(XState state, XSpider mover, XWeb target)
@@ -76,7 +104,7 @@ namespace Joueur.cs.Games.Spiders
         public static void NextTurn(XState state)
         {
             var player = state.Players.Values.First(p => p.Key != state.CurrentPlayer);
-            
+
             //ProgressSpitters(state, state.Spiders.Where(s => s.);
             //ProgressCutters(state, player.Cutters);
             //ProgressWeavers(state, player.Weavers);
@@ -117,7 +145,7 @@ namespace Joueur.cs.Games.Spiders
 
         public static void ProgressBroodMotherEggs(XState state, int broodMother)
         {
-
+            state.Spiders[broodMother].Eggs = API.newEggs(API.getNumSpiderlings(state.Players[state.CurrentPlayer]));
         }
     }
 }

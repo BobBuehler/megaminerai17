@@ -31,6 +31,11 @@ namespace Joueur.cs.Games.Spiders
 		{
 			return (int)Math.Ceiling(distance / Game.MovementSpeed);
 		}
+
+        public static int getNumSpiderlings(XPlayer xplayer)
+        {
+            return xplayer.Cutters.Count + xplayer.Spitters.Count + xplayer.Weavers.Count;
+        }
 		
 		public static int newEggs(int numSpiderlings)
 		{
