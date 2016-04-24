@@ -88,5 +88,71 @@ namespace Joueur.cs.Games.Spiders
             return node.Webs.Select( w => state.Webs[w]).Select(w => Tuple.Create(w, getNN(w)) );
         }
 
+        public static bool isBusy(XSpider spider)
+        {
+            return spider.WorkRemaining != 0;
+        }
+
+        public static IEnumerable<XSpider> getNestSpiders(XState state, XNest nest)
+        {
+            return nest.Spiders.Select(spider => state.Spiders[spider]);
+        }
+
+        public static IEnumerable<XWeb> getNestWebs(XState state, XNest nest)
+        {
+            return nest.Webs.Select(web => state.Webs[web]);
+        }
+
+        public static IEnumerable<XSpider> filterByAllies(int owner, IEnumerable<XSpider> spiders)
+        {
+            return spiders.Where(spider => spider.Owner == owner);
+        }
+
+        public static IEnumerable<XSpider> filterByEnemies(int owner, IEnumerable<XSpider> spiders)
+        {
+            return spiders.Where(spider => spider.Owner != owner);
+        }
+
+        public static XNest getSpiderNest(XState state, XSpider spider)
+        {
+            return state.Nests[spider.Nest];
+        }
+
+        //Doesnt check for owner.. or nest...
+        public static bool canAttackKind(XSpider attacker, XSpider attackee)
+        {
+            if (attacker.Type == XSpiderType.Cutter && attackee.Type == XSpiderType.Weaver)
+            {
+                return false;
+            }
+            if (attacker.Type == XSpiderType.Spitter && attackee.Type == XSpiderType.Cutter)
+            {
+                return false;
+            }
+            if (attacker.Type == XSpiderType.Weaver && attackee.Type == XSpiderType.Spitter)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static IEnumerable<XSpider> getAttackTargets(XState state, XSpider spider)
+        {
+            return filterByEnemies(spider.Owner, getNestSpiders(state, getSpiderNest(state, spider))).Where(attackee => canAttackKind(spider, attackee));
+        }
+
+        public static IEnumerable<XWeb> getWebTargets(XState state, XSpider spider)
+        {
+            return getNestWebs(state, getSpiderNest(state, spider));
+        }
+
+        public static IEnumerable<XNest> getSpitTargets(XState state, XSpider spider)
+        {
+            var curNest = state.Nests[spider.Nest];
+            var connectedNests = getNestWebs(state, curNest).SelectMany(w => new int[] { w.NestA, w.NestB }).ToHashSet();
+            return state.Nests.Values.Where(n => !connectedNests.Contains(n.Key));
+        }
+
     }
 }
