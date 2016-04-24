@@ -76,7 +76,7 @@ namespace Joueur.cs.Games.Spiders
             var broodMother = state.Spiders[player.BroodMother];
 
             var nestsByPoints = state.Nests.Values.Where(n => n.Key != broodMother.Nest).ToDictionary(n => n.Location);
-            return MST(nestsByPoints.Keys).Select(t => Tuple.Create(nestsByPoints[t.Item1].Key, nestsByPoints[t.Item2].Key));
+            return T(nestsByPoints.Keys).Select(t => Tuple.Create(nestsByPoints[t.Item1].Key, nestsByPoints[t.Item2].Key));
         }
 
         public static IEnumerable<XAction> mobilizeSpitters(XState state, IEnumerable<Tuple<int, int>> wantedWebs)
@@ -124,20 +124,60 @@ namespace Joueur.cs.Games.Spiders
             return nest.Webs.Select(w => API.getNextNest(state, nest, state.Webs[w]));
         }
 
-        public static IEnumerable<Tuple<Point, Point>> MST(IEnumerable<Point> points)
+        public static IEnumerable<Tuple<Point, Point>> T(IEnumerable<Point> points)
         {
+            int maxSeenCount = 6;
             var edges = points.SelectMany(p1 => points.Select(p2 => new { p1 = p1, p2 = p2, dist = p1.EDist(p2)}));
-            var closedSet = new HashSet<Point>();
+            var seenCount = points.ToDictionary(p => p, p => 0);
+            var seen = new HashSet<Tuple<Point, Point>>();
             foreach(var edge in edges.Where(e => !e.p1.Equals(e.p2)).OrderBy(e => e.dist))
             {
-                if (!closedSet.Contains(edge.p1) || !closedSet.Contains(edge.p2))
+                if (seenCount[edge.p1] < maxSeenCount && seenCount[edge.p2] < maxSeenCount && !seen.Contains(Tuple.Create(edge.p1, edge.p2)))
                 {
-                    closedSet.Add(edge.p1);
-                    closedSet.Add(edge.p2);
+                    seenCount[edge.p1]++;
+                    seenCount[edge.p2]++;
+                    seen.Add(Tuple.Create(edge.p1, edge.p2));
+                    seen.Add(Tuple.Create(edge.p2, edge.p1));
                     yield return Tuple.Create(edge.p1, edge.p2);
                 }
             }
 
+        }
+
+        public static void SpreadSpitters()
+        {
+            Smarts.Refresh();
+            var ourSpitters = Smarts.Game.CurrentPlayer.Spiders.Where(s => s.GetXSpiderType() == XSpiderType.Spitter).Select(s => s as Spitter).ToArray();
+            var idleSpitters = ourSpitters.Where(s => s.WorkRemaining == 0);
+            var nestsWithSpitters = ourSpitters.Select(s => s.MovingToNest != null ? s.MovingToNest : s.Nest).Select(n => n.ToPoint()).ToHashSet();
+            var nestsWithoutSpitters = Smarts.Game.Nests.Where(n => !nestsWithSpitters.Contains(n.ToPoint()));
+            if (!idleSpitters.Any() || !nestsWithoutSpitters.Any())
+            {
+                return;
+            }
+
+            foreach(var spitter in idleSpitters)
+            {
+                Smarts.Refresh();
+                var closest = nestsWithoutSpitters.OrderBy(n => n.ToPoint().EDist(spitter.Nest.ToPoint()));
+                foreach (var nest in closest)
+                {
+                    Web web;
+                    if (Smarts.Webs.TryGetValue(Tuple.Create(spitter.Nest.ToPoint(), nest.ToPoint()), out web))
+                    {
+                        if (web.Load < web.Strength && spitter.Nest.Spiders.Count(s => s.GetXSpiderType() == XSpiderType.Spitter) > 2)
+                        {
+                            spitter.Move(web);
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        spitter.Spit(nest);
+                        break;
+                    }
+                }
+            }
         }
     }
 }

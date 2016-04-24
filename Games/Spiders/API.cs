@@ -285,8 +285,6 @@ namespace Joueur.cs.Games.Spiders
                 throw new Exception("ACK");
             }
             var player = Game.CurrentPlayer;
-            var remaining = player.TimeRemaining;
-            var watch = System.Diagnostics.Stopwatch.StartNew();
             switch(action.Type)
             {
                 case XActionType.Spawn:
@@ -300,8 +298,6 @@ namespace Joueur.cs.Games.Spiders
                     break;
                 // TODO MORE!
             }
-            watch.Stop();
-            Console.WriteLine("Action - {0} - {1}", action.Type, (player.TimeRemaining - remaining) / 10000000000);
         }
     }
 }

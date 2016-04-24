@@ -50,6 +50,7 @@ namespace Joueur.cs.Games.Spiders
         public override void Start()
         {
 			API.Init(Game, Player);
+            Smarts.Init(Game);
             base.Start();
         }
 
@@ -98,13 +99,8 @@ namespace Joueur.cs.Games.Spiders
                     API.Execute(new XAction(broodMother, XActionType.Spawn) { SpawnType = XSpiderType.Spitter });
                 }
 
-                // Mobilize
-                API.Refresh();
 
-                var wantedWebs = Solver.getWantedWebs(state);
-                var actions = Solver.mobilizeSpitters(state, wantedWebs);
-
-                actions.ForEach(API.Execute);
+                Solver.SpreadSpitters();
             }
             catch (Exception e)
             {
