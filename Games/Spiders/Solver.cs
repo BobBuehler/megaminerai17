@@ -76,5 +76,22 @@ namespace Joueur.cs.Games.Spiders
             return actionList;
         }
 
+        public static IEnumerable<Tuple<XNest, XNest>> getWantedWebs(XState state)
+        {
+            var player = state.Players[state.CurrentPlayer];
+            var broodMother = state.Spiders[player.BroodMother];
+            var broodNest = state.Nests[broodMother.Nest];
+
+            var search = new AStar<XNest>
+                (
+                    broodNest.Single(),
+                    n => false,
+                    (n1, n2) => API.movementTime(n1.Location.EDist(n2.Location)),
+                    n => 0,
+                    n1 => state.Nests.Values.Where(n2 => API.movementTime(n1.Location.EDist(n2.Location)) % 2 == 1)
+                );
+
+            return search.From.Select(kvp => Tuple.Create(kvp.Value, kvp.Key));
+        }
     }
 }

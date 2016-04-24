@@ -216,7 +216,7 @@ namespace Joueur.cs.Games.Spiders
             return otherNest == -1 ? null : state.Nests[otherNest];
         }
 
-        public static HashSet<XSpider> findCoworkers(XState state, XSpider spider, Func<XSpider, XSpider, bool> areCoworkers)
+        public static HashSet<XSpider> calcCoworkers(XState state, XSpider spider, Func<XSpider, XSpider, bool> areCoworkers)
         {
             var otherNest = OtherNest(state, spider);
 
