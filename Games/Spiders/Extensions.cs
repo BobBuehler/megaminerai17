@@ -137,5 +137,15 @@ namespace Joueur.cs.Games.Spiders
         {
             return API.EDist(new Point(start.x - end.x, start.y - end.y));
         }
+
+        public static T Nth<T>(this IEnumerable<T> source, int n)
+        {
+            var enumerator = source.GetEnumerator();
+            for (int i = -1; i < n; i++)
+            {
+                enumerator.MoveNext();
+            }
+            return enumerator.Current;
+        }
     }
 }

@@ -97,14 +97,33 @@ namespace Joueur.cs.Games.Spiders
                 .Where(s => s.WorkRemaining == 0);
             var nestsWithIdleSpitters = idleSpitters.Select(s => s.Nest).ToHashSet();
             var connectedWebsToMake = websThatDontExist.Where(t => nestsWithIdleSpitters.Contains(t.Item1) || nestsWithIdleSpitters.Contains(t.Item2)).ToLazyList();
+            var nestsOfInterest = websThatDontExist.SelectMany(w => new[] { w.Item1, w.Item2 }).ToHashSet();
             foreach (var spitter in idleSpitters)
             {
                 var webToMake = connectedWebsToMake.FirstOrDefault(t => spitter.Nest == t.Item1 || spitter.Nest == t.Item2);
                 if (webToMake != null)
                 {
-                    yield return null;
+                    var targetNest = API.getNextNest(spitter.Nest, webToMake.Item1, webToMake.Item2);
+                    yield return new XAction(spitter, XActionType.Spit) { TargetNest = state.Nests[targetNest] };
+                }
+                else
+                {
+                    var search = new AStar<XNest>
+                        (
+                            state.Nests[spitter.Nest].Single(),
+                            n => nestsOfInterest.Contains(n.Key),
+                            (n1, n2) => API.movementTime(n1.Location.EDist(n2.Location)),
+                            n => 0,
+                            n => getConnectedNests(state, n)
+                        );
+                    yield return new XAction(spitter, XActionType.Move) { TargetNest = search.Path.Nth(1) };
                 }
             }
+        }
+
+        public static IEnumerable<XNest> getConnectedNests(XState state, XNest nest)
+        {
+            return nest.Webs.Select(w => API.getNextNest(state, nest, state.Webs[w]));
         }
     }
 }
