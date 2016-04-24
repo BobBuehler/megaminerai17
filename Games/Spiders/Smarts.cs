@@ -17,6 +17,8 @@ namespace Joueur.cs.Games.Spiders
         public static IDictionary<Point, Nest> Nests;
         public static IDictionary<Point, HashSet<Point>> WebGraph;
         public static IDictionary<Tuple<Point, Point>, Web> Webs;
+        public static IEnumerable<Spiderling> OurSpiderlings;
+        public static IEnumerable<Spiderling> TheirSpiderlings;
 
         public static void Refresh()
         {
@@ -31,6 +33,8 @@ namespace Joueur.cs.Games.Spiders
                 Webs[points] = web;
                 Webs[points.Reverse()] = web;
             }
+            OurSpiderlings = Game.CurrentPlayer.Spiders.Where(s => s is Spiderling).Select(s => s as Spiderling);
+            TheirSpiderlings = Game.CurrentPlayer.OtherPlayer.Spiders.Where(s => s is Spiderling).Select(s => s as Spiderling);
         }
 
         public static Point ToPoint(this Nest nest)
