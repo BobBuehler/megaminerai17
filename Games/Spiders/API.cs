@@ -242,5 +242,52 @@ namespace Joueur.cs.Games.Spiders
                 .Where(s => areCoworkers(spider, s))
                 .ToHashSet();
         }
+
+        public static T GetSpider<T>(XSpider spider) where T : Spider
+        {
+            return GetSpider<T>(spider.Key);
+        }
+
+        public static T GetSpider<T>(int key) where T : Spider
+        {
+            return (T)Spiders[GetId(key)];
+        }
+
+        public static Web GetWeb(XWeb web)
+        {
+            return GetWeb(web.Key);
+        }
+
+        public static Web GetWeb(int key)
+        {
+            return Webs[GetId(key)];
+        }
+
+        public static Nest GetNest(XNest nest)
+        {
+            return GetNest(nest.Key);
+        }
+
+        public static Nest GetNest(int key)
+        {
+            return Nests[GetId(key)];
+        }
+
+        public static void Execute(XAction action)
+        {
+            switch(action.Type)
+            {
+                case XActionType.Spawn:
+                    GetSpider<BroodMother>(action.Actor).Spawn(action.SpawnType.ToString());
+                    break;
+                case XActionType.Move:
+                    GetSpider<Spiderling>(action.Actor).Move(GetWeb(action.TargetWeb));
+                    break;
+                case XActionType.Spit:
+                    GetSpider<Spitter>(action.Actor).Spit(GetNest(action.TargetNest));
+                    break;
+                // TODO MORE!
+            }
+        }
     }
 }
