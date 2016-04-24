@@ -26,12 +26,14 @@ namespace Joueur.cs.Games.Spiders
             Spiders = Game.Players.SelectMany(p => p.Spiders).ToDictionary(s => s.Id);
             Nests = Game.Nests.ToDictionary(n => n.Id);
             Webs = Game.Webs.ToDictionary(w => w.Id);
+            State = new XState(Game);
         }
 
         public static IDictionary<string, Player> Players;
         public static IDictionary<string, Spider> Spiders;
         public static IDictionary<string, Nest> Nests;
         public static IDictionary<string, Web> Webs;
+        public static XState State;
 
 
         private static double _edist(Point d)

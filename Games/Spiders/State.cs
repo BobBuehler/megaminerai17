@@ -303,5 +303,15 @@ namespace Joueur.cs.Games.Spiders
         public XSpider TargetSpider;
         public XWeb TargetWeb;
         public XNest TargetNest;
+
+        public XAction(XSpider actor, XActionType type)
+        {
+            Actor = actor;
+            Type = type;
+            SpawnType = XSpiderType.BroodMother;
+            TargetSpider = null;
+            TargetWeb = null;
+            TargetNest = null;
+        }
     }
 }
