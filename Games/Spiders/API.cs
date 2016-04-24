@@ -159,5 +159,41 @@ namespace Joueur.cs.Games.Spiders
             return state.Nests.Values.Where(n => !connectedNests.Contains(n.Key));
         }
 
+        public static bool areCoworkers(XSpider spider1, XSpider spider2)
+        {
+            if( ( spider1.SpittingToNest == spider2.SpittingToNest && spider1.Nest == spider2.Nest )
+             || ( spider1.SpittingToNest == spider2.Nest && spider2.SpittingToNest == spider1.Nest ) )
+            {
+                return true;
+            }
+
+            if ( spider1.StrengtheningWeb == spider2.StrengtheningWeb
+              || spider1.WeakeningWeb == spider2.WeakeningWeb )
+            {
+                return true;
+            }
+
+            if (spider1.CuttingWeb == spider2.CuttingWeb)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        public static HashSet<int> findCoworkers(XState state, XSpider spider)
+        {
+            var spiders = state.Nests[spider.Nest].Spiders;
+            var otherSpiders = state.Nests[spider.MovingToNest].Spiders;
+
+            var coworkers = spiders.Concat(otherSpiders).Where(spi => areCoworkers(spider, state.Spiders[spi]) && spi != spider.Key );
+            
+            if(coworkers.Any())
+            {
+                return state.Spiders[coworkers.First()].Coworkers;
+            }
+
+            return spider.Key.Single().ToHashSet();
+        }
     }
 }

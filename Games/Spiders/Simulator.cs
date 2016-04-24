@@ -86,9 +86,25 @@ namespace Joueur.cs.Games.Spiders
             mover.Nest = -1;
         }
 
-        public static void CutWeb(XState state, XSpider mover, XWeb target)
+        public static void CutWeb(XState state, XSpider cutter, XWeb target)
         {
+            //coworkers
+            cutter.Coworkers = API.findCoworkers(state, cutter);
+            if(!cutter.Coworkers.Any())//If there are no coworkers, calculate work remaining
+            {
+                cutter.WorkRemaining = API.cutWorkRemaining(target.Strength, target.Length);
+            }
+            else
+            {
+                cutter.WorkRemaining = state.Spiders[cutter.Coworkers.First()].WorkRemaining;
+            }
 
+            cutter.Coworkers.Add(cutter.Key);//Add yourself to the list (it may already contain you, but it doesn't hurt to do it again.
+            
+            foreach (var worker in cutter.Coworkers)//Add self as coworker to each coworker
+            {
+                state.Spiders[worker].Coworkers.Add(cutter.Key);
+            }           
         }
 
         public static void SpitToNest(XState state, XSpider mover, XNest target)
