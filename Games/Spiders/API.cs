@@ -20,6 +20,20 @@ namespace Joueur.cs.Games.Spiders
             keyToId = new Dictionary<int, string>();
         }
 
+        public void Refresh()
+        {
+            Players = Game.Players.ToDictionary(p => p.Id);
+            Spiders = Game.Players.SelectMany(p => p.Spiders).ToDictionary(s => s.Id);
+            Nests = Game.Nests.ToDictionary(n => n.Id);
+            Webs = Game.Webs.ToDictionary(w => w.Id);
+        }
+
+        public IDictionary<string, Player> Players;
+        public IDictionary<string, Spider> Spiders;
+        public IDictionary<string, Nest> Nests;
+        public IDictionary<string, Web> Webs;
+
+
         private static double _edist(Point d)
         {
             return Math.Sqrt(d.x * d.x + d.y * d.y);
