@@ -49,6 +49,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>True if the strengthen was successfully started, false otherwise.</returns>
         public bool Strengthen(Spiders.Web web)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<bool>("strengthen", new Dictionary<string, object> {
                 {"web", web}
             });
@@ -61,6 +65,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>True if the weaken was successfully started, false otherwise.</returns>
         public bool Weaken(Spiders.Web web)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<bool>("weaken", new Dictionary<string, object> {
                 {"web", web}
             });

@@ -44,6 +44,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>True if the cut was successfully started, false otherwise.</returns>
         public bool Cut(Spiders.Web web)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<bool>("cut", new Dictionary<string, object> {
                 {"web", web}
             });

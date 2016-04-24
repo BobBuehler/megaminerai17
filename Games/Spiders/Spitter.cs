@@ -44,6 +44,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>True if the spit was successful, false otherwise.</returns>
         public bool Spit(Spiders.Nest nest)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<bool>("spit", new Dictionary<string, object> {
                 {"nest", nest}
             });

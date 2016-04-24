@@ -64,6 +64,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>True if the attack was successful, false otherwise.</returns>
         public bool Attack(Spiders.Spiderling spiderling)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<bool>("attack", new Dictionary<string, object> {
                 {"spiderling", spiderling}
             });
@@ -76,6 +80,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>True if the move was successful, false otherwise.</returns>
         public bool Move(Spiders.Web web)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<bool>("move", new Dictionary<string, object> {
                 {"web", web}
             });

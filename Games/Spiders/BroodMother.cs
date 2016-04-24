@@ -61,6 +61,10 @@ namespace Joueur.cs.Games.Spiders
         /// <returns>The newly spwaned Spiderling if successful. Null otherwise.</returns>
         public Spiders.Spiderling Spawn(string spiderlingType)
         {
+            if (Joueur.cs.Games.Spiders.Smarts.Game.CurrentPlayer.TimeRemaining < 100000000)
+            {
+                throw new Exception("ACK");
+            }
             return this.RunOnServer<Spiders.Spiderling>("spawn", new Dictionary<string, object> {
                 {"spiderlingType", spiderlingType}
             });
