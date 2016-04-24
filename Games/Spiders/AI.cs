@@ -170,7 +170,13 @@ namespace Joueur.cs.Games.Spiders
 
             var ourNest = mother.Nest;
             var theirNest = Game.CurrentPlayer.OtherPlayer.BroodMother.Nest;
+
             var stops = Game.Nests.Where(n => n != ourNest && n != theirNest).OrderBy(n => ourNest.EDist(n) + n.EDist(theirNest));
+            if (Game.CurrentPlayer.OtherPlayer.Spiders.Count(s => s is Cutter) > 30)
+            {
+                stops = Game.Nests.Where(n => n != ourNest && n != theirNest).OrderBy(n => n.EDist(theirNest));
+            }
+
             foreach(var stop in stops)
             {
                 Web incoming = Smarts.Webs.GetOrDefault(Tuple.Create(ourNest.ToPoint(), stop.ToPoint()));
